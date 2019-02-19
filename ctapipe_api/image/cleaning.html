@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Image and Waveform Cleaning &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="tailcuts_clean" href="../../api/ctapipe.image.cleaning.tailcuts_clean.html" />
+    <link rel="prev" title="HillasParameterizationError" href="../../api/ctapipe.image.hillas.HillasParameterizationError.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../analysis/index.html">Analysis (<code class="docutils literal notranslate"><span class="pre">analysis</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calib/index.html">Calibration (<code class="docutils literal notranslate"><span class="pre">calib</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../coordinates/index.html">Coordinates (<code class="docutils literal notranslate"><span class="pre">coordinates</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../core/index.html">Core Structures and Base Classes (<code class="docutils literal notranslate"><span class="pre">core</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Imaging (<code class="docutils literal notranslate"><span class="pre">image</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="hillas.html">Hillas Parameterization</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Image and Waveform Cleaning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#api-reference">API Reference</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ctapipe.image.cleaning">ctapipe.image.cleaning Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ctapipe.image.waveform_cleaning">ctapipe.image.waveform_cleaning Module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="muon.html">Muon image analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="toymodel.html">Toy model image generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pixel_likelihood.html">Pixel likelihood calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="charge_extractors.html">Charge Extraction (cube to image)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reducers.html">Image volume reduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry_converter.html">Camera image conversions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#reference-api">Reference/API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../instrument/index.html">Instrument (<code class="docutils literal notranslate"><span class="pre">instrument</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../io/index.html">Input/Output (<code class="docutils literal notranslate"><span class="pre">io</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reco/index.html">Reconstruction (<code class="docutils literal notranslate"><span class="pre">reco</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools/index.html">Command line tools (<code class="docutils literal notranslate"><span class="pre">tools</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html">Utilities (<code class="docutils literal notranslate"><span class="pre">utils</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../visualization/index.html">Visualization (<code class="docutils literal notranslate"><span class="pre">visualization</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">API Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Imaging (<code class="docutils literal notranslate"><span class="pre">image</span></code>)</a> &raquo;</li>
+        
+      <li>Image and Waveform Cleaning</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/ctapipe_api/image/cleaning.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="image-and-waveform-cleaning">
+<span id="image-cleaning"></span><h1>Image and Waveform Cleaning<a class="headerlink" href="#image-and-waveform-cleaning" title="Permalink to this headline">¶</a></h1>
+<p>Cleaning/denoising of images in time (applying filters, convolutions,
+or baseline subtractions) and space (tailcuts cleaning, dilation,
+filtering).</p>
+<p>An example of image cleaning and dilation:</p>
+<img alt="../../_images/dilate.png" src="../../_images/dilate.png" />
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ctapipe.image.cleaning">
+<span id="ctapipe-image-cleaning-module"></span><h2>ctapipe.image.cleaning Module<a class="headerlink" href="#module-ctapipe.image.cleaning" title="Permalink to this headline">¶</a></h2>
+<p>Image Cleaning Algorithms (identification of noisy pixels)</p>
+<div class="section" id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../../api/ctapipe.image.cleaning.tailcuts_clean.html#ctapipe.image.cleaning.tailcuts_clean" title="ctapipe.image.cleaning.tailcuts_clean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tailcuts_clean</span></code></a>(geom,&nbsp;image[,&nbsp;…])</td>
+<td>Clean an image by selection pixels that pass a two-threshold tail-cuts procedure.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../api/ctapipe.image.cleaning.dilate.html#ctapipe.image.cleaning.dilate" title="ctapipe.image.cleaning.dilate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dilate</span></code></a>(geom,&nbsp;mask)</td>
+<td>Add one row of neighbors to the True values of a pixel mask and return the new mask.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="module-ctapipe.image.waveform_cleaning">
+<span id="ctapipe-image-waveform-cleaning-module"></span><h2>ctapipe.image.waveform_cleaning Module<a class="headerlink" href="#module-ctapipe.image.waveform_cleaning" title="Permalink to this headline">¶</a></h2>
+<p>Waveform cleaning algorithms (smoothing, filtering, baseline subtraction)</p>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../../api/ctapipe.image.waveform_cleaning.WaveformCleanerFactory.html#ctapipe.image.waveform_cleaning.WaveformCleanerFactory" title="ctapipe.image.waveform_cleaning.WaveformCleanerFactory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WaveformCleanerFactory</span></code></a>([config,&nbsp;tool])</td>
+<td>Factory to obtain a WaveformCleaner.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../api/ctapipe.image.waveform_cleaning.CHECMWaveformCleanerAverage.html#ctapipe.image.waveform_cleaning.CHECMWaveformCleanerAverage" title="ctapipe.image.waveform_cleaning.CHECMWaveformCleanerAverage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CHECMWaveformCleanerAverage</span></code></a>([config,&nbsp;tool])</td>
+<td>Waveform cleaner used by CHEC-M.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../api/ctapipe.image.waveform_cleaning.CHECMWaveformCleanerLocal.html#ctapipe.image.waveform_cleaning.CHECMWaveformCleanerLocal" title="ctapipe.image.waveform_cleaning.CHECMWaveformCleanerLocal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CHECMWaveformCleanerLocal</span></code></a>([config,&nbsp;tool])</td>
+<td>Waveform cleaner used by CHEC-M.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../api/ctapipe.image.waveform_cleaning.NullWaveformCleaner.html#ctapipe.image.waveform_cleaning.NullWaveformCleaner" title="ctapipe.image.waveform_cleaning.NullWaveformCleaner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NullWaveformCleaner</span></code></a>([config,&nbsp;tool])</td>
+<td>Dummy waveform cleaner that simply returns its input</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="class-inheritance-diagram">
+<h3>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h3>
+<div class="graphviz"><img src="../../_images/inheritance-257efbe9f82cd24cfb297025f551a00a308be6ec.png" alt="Inheritance diagram of ctapipe.image.waveform_cleaning.WaveformCleanerFactory, ctapipe.image.waveform_cleaning.CHECMWaveformCleanerAverage, ctapipe.image.waveform_cleaning.CHECMWaveformCleanerLocal, ctapipe.image.waveform_cleaning.NullWaveformCleaner" usemap="#inheritance8a8e4161a4" class="inheritance graphviz" /></div>
+<map id="inheritance8a8e4161a4" name="inheritance8a8e4161a4">
+<area shape="rect" id="node3" href="../../api/ctapipe.image.waveform_cleaning.CHECMWaveformCleanerAverage.html#ctapipe.image.waveform_cleaning.CHECMWaveformCleanerAverage" target="_top" title="Waveform cleaner used by CHEC&#45;M." alt="" coords="620,3,765,19"/>
+<area shape="rect" id="node4" href="../../api/ctapipe.image.waveform_cleaning.CHECMWaveformCleanerLocal.html#ctapipe.image.waveform_cleaning.CHECMWaveformCleanerLocal" target="_top" title="Waveform cleaner used by CHEC&#45;M." alt="" coords="626,33,759,48"/>
+<area shape="rect" id="node10" href="../../api/ctapipe.image.waveform_cleaning.NullWaveformCleaner.html#ctapipe.image.waveform_cleaning.NullWaveformCleaner" target="_top" title="Dummy waveform cleaner that simply returns its input" alt="" coords="485,48,585,63"/>
+<area shape="rect" id="node11" href="../../api/ctapipe.image.waveform_cleaning.WaveformCleanerFactory.html#ctapipe.image.waveform_cleaning.WaveformCleanerFactory" target="_top" title="Factory to obtain a WaveformCleaner." alt="" coords="478,78,591,93"/>
+</map></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../api/ctapipe.image.cleaning.tailcuts_clean.html" class="btn btn-neutral float-right" title="tailcuts_clean" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../../api/ctapipe.image.hillas.HillasParameterizationError.html" class="btn btn-neutral" title="HillasParameterizationError" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

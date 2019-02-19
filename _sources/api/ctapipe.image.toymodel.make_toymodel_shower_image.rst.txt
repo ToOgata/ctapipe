@@ -1,0 +1,6 @@
+make_toymodel_shower_image
+==========================
+
+.. currentmodule:: ctapipe.image.toymodel
+
+.. autofunction:: make_toymodel_shower_image

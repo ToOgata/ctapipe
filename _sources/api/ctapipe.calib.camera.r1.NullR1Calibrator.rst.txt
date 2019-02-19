@@ -1,0 +1,17 @@
+NullR1Calibrator
+================
+
+.. currentmodule:: ctapipe.calib.camera.r1
+
+.. autoclass:: NullR1Calibrator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~NullR1Calibrator.calibrate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: calibrate

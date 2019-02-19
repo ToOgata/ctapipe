@@ -1,0 +1,27 @@
+HESSIOR1Calibrator
+==================
+
+.. currentmodule:: ctapipe.calib.camera
+
+.. autoclass:: HESSIOR1Calibrator
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~HESSIOR1Calibrator.calib_scale
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~HESSIOR1Calibrator.calibrate
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: calib_scale
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: calibrate

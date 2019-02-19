@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>WaveformCleanerFactory &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Instrument (instrument)" href="../ctapipe_api/instrument/index.html" />
+    <link rel="prev" title="SimpleIntegrator" href="ctapipe.image.SimpleIntegrator.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../ctapipe_api/index.html">API Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ctapipe_api/analysis/index.html">Analysis (<code class="docutils literal notranslate"><span class="pre">analysis</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ctapipe_api/calib/index.html">Calibration (<code class="docutils literal notranslate"><span class="pre">calib</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ctapipe_api/coordinates/index.html">Coordinates (<code class="docutils literal notranslate"><span class="pre">coordinates</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ctapipe_api/core/index.html">Core Structures and Base Classes (<code class="docutils literal notranslate"><span class="pre">core</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../ctapipe_api/image/index.html">Imaging (<code class="docutils literal notranslate"><span class="pre">image</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../ctapipe_api/image/hillas.html">Hillas Parameterization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ctapipe_api/image/cleaning.html">Image and Waveform Cleaning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ctapipe_api/image/muon.html">Muon image analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ctapipe_api/image/toymodel.html">Toy model image generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ctapipe_api/image/pixel_likelihood.html">Pixel likelihood calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ctapipe_api/image/charge_extractors.html">Charge Extraction (cube to image)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ctapipe_api/image/reducers.html">Image volume reduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ctapipe_api/image/geometry_converter.html">Camera image conversions</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../ctapipe_api/image/index.html#reference-api">Reference/API</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../ctapipe_api/image/index.html#module-ctapipe.image">ctapipe.image Package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../ctapipe_api/instrument/index.html">Instrument (<code class="docutils literal notranslate"><span class="pre">instrument</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ctapipe_api/io/index.html">Input/Output (<code class="docutils literal notranslate"><span class="pre">io</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ctapipe_api/reco/index.html">Reconstruction (<code class="docutils literal notranslate"><span class="pre">reco</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ctapipe_api/tools/index.html">Command line tools (<code class="docutils literal notranslate"><span class="pre">tools</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ctapipe_api/utils/index.html">Utilities (<code class="docutils literal notranslate"><span class="pre">utils</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ctapipe_api/visualization/index.html">Visualization (<code class="docutils literal notranslate"><span class="pre">visualization</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../ctapipe_api/index.html">API Docs</a> &raquo;</li>
+        
+          <li><a href="../ctapipe_api/image/index.html">Imaging (<code class="docutils literal notranslate"><span class="pre">image</span></code>)</a> &raquo;</li>
+        
+      <li>WaveformCleanerFactory</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/ctapipe.image.WaveformCleanerFactory.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="waveformcleanerfactory">
+<h1>WaveformCleanerFactory<a class="headerlink" href="#waveformcleanerfactory" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ctapipe.image.WaveformCleanerFactory">
+<em class="property">class </em><code class="descclassname">ctapipe.image.</code><code class="descname">WaveformCleanerFactory</code><span class="sig-paren">(</span><em>config=None</em>, <em>tool=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ctapipe/image/waveform_cleaning.html#WaveformCleanerFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ctapipe.image.WaveformCleanerFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ctapipe.core.factory.Factory</span></code></p>
+<p>Factory to obtain a WaveformCleaner.</p>
+<p class="rubric">Attributes Summary</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#ctapipe.image.WaveformCleanerFactory.custom_product_help" title="ctapipe.image.WaveformCleanerFactory.custom_product_help"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_product_help</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#ctapipe.image.WaveformCleanerFactory.default" title="ctapipe.image.WaveformCleanerFactory.default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#ctapipe.image.WaveformCleanerFactory.product" title="ctapipe.image.WaveformCleanerFactory.product"><code class="xref py py-obj docutils literal notranslate"><span class="pre">product</span></code></a></td>
+<td>An enum of strings where the case should be ignored.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#ctapipe.image.WaveformCleanerFactory.subclass_names" title="ctapipe.image.WaveformCleanerFactory.subclass_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subclass_names</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#ctapipe.image.WaveformCleanerFactory.subclasses" title="ctapipe.image.WaveformCleanerFactory.subclasses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subclasses</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#ctapipe.image.WaveformCleanerFactory.window_shift" title="ctapipe.image.WaveformCleanerFactory.window_shift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window_shift</span></code></a></td>
+<td>An int trait.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#ctapipe.image.WaveformCleanerFactory.window_width" title="ctapipe.image.WaveformCleanerFactory.window_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window_width</span></code></a></td>
+<td>An int trait.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="attribute">
+<dt id="ctapipe.image.WaveformCleanerFactory.custom_product_help">
+<code class="descname">custom_product_help</code><em class="property"> = 'Waveform cleaning method to use.'</em><a class="headerlink" href="#ctapipe.image.WaveformCleanerFactory.custom_product_help" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ctapipe.image.WaveformCleanerFactory.default">
+<code class="descname">default</code><em class="property"> = 'NullWaveformCleaner'</em><a class="headerlink" href="#ctapipe.image.WaveformCleanerFactory.default" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ctapipe.image.WaveformCleanerFactory.product">
+<code class="descname">product</code><a class="headerlink" href="#ctapipe.image.WaveformCleanerFactory.product" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enum of strings where the case should be ignored.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ctapipe.image.WaveformCleanerFactory.subclass_names">
+<code class="descname">subclass_names</code><em class="property"> = ['NullWaveformCleaner', 'CHECMWaveformCleanerAverage', 'CHECMWaveformCleanerLocal']</em><a class="headerlink" href="#ctapipe.image.WaveformCleanerFactory.subclass_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ctapipe.image.WaveformCleanerFactory.subclasses">
+<code class="descname">subclasses</code><em class="property"> = [&lt;class 'ctapipe.image.waveform_cleaning.NullWaveformCleaner'&gt;, &lt;class 'ctapipe.image.waveform_cleaning.CHECMWaveformCleanerAverage'&gt;, &lt;class 'ctapipe.image.waveform_cleaning.CHECMWaveformCleanerLocal'&gt;]</em><a class="headerlink" href="#ctapipe.image.WaveformCleanerFactory.subclasses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ctapipe.image.WaveformCleanerFactory.window_shift">
+<code class="descname">window_shift</code><a class="headerlink" href="#ctapipe.image.WaveformCleanerFactory.window_shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>An int trait.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ctapipe.image.WaveformCleanerFactory.window_width">
+<code class="descname">window_width</code><a class="headerlink" href="#ctapipe.image.WaveformCleanerFactory.window_width" title="Permalink to this definition">¶</a></dt>
+<dd><p>An int trait.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../ctapipe_api/instrument/index.html" class="btn btn-neutral float-right" title="Instrument (instrument)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ctapipe.image.SimpleIntegrator.html" class="btn btn-neutral" title="SimpleIntegrator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

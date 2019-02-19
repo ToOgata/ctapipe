@@ -1,0 +1,29 @@
+EventSourceFactory
+==================
+
+.. currentmodule:: ctapipe.io
+
+.. autoclass:: EventSourceFactory
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~EventSourceFactory.allowed_tels
+      ~EventSourceFactory.custom_product_help
+      ~EventSourceFactory.input_url
+      ~EventSourceFactory.max_events
+      ~EventSourceFactory.product
+      ~EventSourceFactory.subclass_names
+      ~EventSourceFactory.subclasses
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: allowed_tels
+   .. autoattribute:: custom_product_help
+   .. autoattribute:: input_url
+   .. autoattribute:: max_events
+   .. autoattribute:: product
+   .. autoattribute:: subclass_names
+   .. autoattribute:: subclasses

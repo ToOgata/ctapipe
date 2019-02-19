@@ -1,0 +1,911 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ctapipe.image.charge_extractors &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>ctapipe.image.charge_extractors</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ctapipe.image.charge_extractors</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Charge extraction algorithms to reduce the image to one value per pixel</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ChargeExtractorFactory&#39;</span><span class="p">,</span> <span class="s1">&#39;FullIntegrator&#39;</span><span class="p">,</span> <span class="s1">&#39;SimpleIntegrator&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;GlobalPeakIntegrator&#39;</span><span class="p">,</span> <span class="s1">&#39;LocalPeakIntegrator&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;NeighbourPeakIntegrator&#39;</span><span class="p">,</span> <span class="s1">&#39;AverageWfPeakIntegrator&#39;</span><span class="p">]</span>
+
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">traitlets</span> <span class="k">import</span> <span class="n">Int</span><span class="p">,</span> <span class="n">CaselessStrEnum</span><span class="p">,</span> <span class="n">Float</span>
+<span class="kn">from</span> <span class="nn">ctapipe.core</span> <span class="k">import</span> <span class="n">Component</span><span class="p">,</span> <span class="n">Factory</span>
+<span class="kn">from</span> <span class="nn">ctapipe.utils.neighbour_sum</span> <span class="k">import</span> <span class="n">get_sum_array</span>
+
+
+<span class="k">class</span> <span class="nc">ChargeExtractor</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Base component to handle the extraction of charge from an image cube.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        neighbours : ndarray</span>
+<span class="sd">            2D array where each row is [pixel index, one neighbour</span>
+<span class="sd">            of that pixel].</span>
+<span class="sd">            Changes per telescope.</span>
+<span class="sd">            Can be obtained from</span>
+<span class="sd">            `ctapipe.instrument.CameraGeometry.neighbor_matrix_where`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool or None</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">neighbours</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">requires_neighbours</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method used for callers of the ChargeExtractor to know if the extractor</span>
+<span class="sd">        requires knowledge of the pixel neighbours</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">check_neighbour_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the pixel neighbours has been set for the extractor</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        -------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If neighbours has not been set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_neighbours</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbours</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;neighbours attribute must be set&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_peakpos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the peak position from the waveforms</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        waveforms : ndarray</span>
+<span class="sd">            Waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        peakpos : ndarray</span>
+<span class="sd">            Numpy array of the peak position for each pixel. </span>
+<span class="sd">            Has shape of (n_chan, n_pix).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">extract_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call the relevant functions to fully extract the charge for the</span>
+<span class="sd">        particular extractor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        waveforms : ndarray</span>
+<span class="sd">            Waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        charge : ndarray</span>
+<span class="sd">            Extracted charge stored in a numpy array of shape (n_chan, n_pix).</span>
+<span class="sd">        window : ndarray</span>
+<span class="sd">            Bool numpy array defining the samples included in the integration</span>
+<span class="sd">            window.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">Integrator</span><span class="p">(</span><span class="n">ChargeExtractor</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Base component for charge extractors that perform integration.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        neighbours : list</span>
+<span class="sd">            List of neighbours for each pixel. Changes per telescope.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">check_window_width_and_start</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check that the combination of window width and start positions fit</span>
+<span class="sd">        within the readout window.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n_samples : int</span>
+<span class="sd">            Number of samples in the waveform</span>
+<span class="sd">        start : ndarray</span>
+<span class="sd">            Numpy array containing the window start for each pixel. Shape =</span>
+<span class="sd">            (n_chan, n_pix)</span>
+<span class="sd">        width : ndarray</span>
+<span class="sd">            Numpy array containing the window width for each pixel. Shape =</span>
+<span class="sd">            (n_chan, n_pix)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">width</span><span class="p">[</span><span class="n">width</span> <span class="o">&gt;</span> <span class="n">n_samples</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_samples</span>
+        <span class="n">start</span><span class="p">[</span><span class="n">start</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">sum_check</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="n">n_samples</span>
+        <span class="n">start</span><span class="p">[</span><span class="n">sum_check</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">-</span> <span class="n">width</span><span class="p">[</span><span class="n">sum_check</span><span class="p">]</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_peakpos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_get_window_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">,</span> <span class="n">peakpos</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the starting point for the integration window</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        waveforms : ndarray</span>
+<span class="sd">            Waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+<span class="sd">        peakpos : ndarray</span>
+<span class="sd">            Numpy array containing the peak position for each pixel. </span>
+<span class="sd">            Shape = (n_chan, n_pix)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        start : ndarray</span>
+<span class="sd">            Numpy array containing the window start for each pixel.</span>
+<span class="sd">            Shape = (n_chan, n_pix)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_get_window_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the width of the integration window</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        waveforms : ndarray</span>
+<span class="sd">            Waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        width : ndarray</span>
+<span class="sd">            Numpy array containing the window width for each pixel.</span>
+<span class="sd">            Shape = (n_chan, n_pix)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_start_and_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">,</span> <span class="n">peakpos</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain the numpy arrays containing the start and width for the</span>
+<span class="sd">        integration window for each pixel.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        waveforms : ndarray</span>
+<span class="sd">            Waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+<span class="sd">        peakpos : ndarray</span>
+<span class="sd">            Numpy array of the peak position for each pixel. </span>
+<span class="sd">            Has shape of (n_chan, n_pix).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        w_start : ndarray</span>
+<span class="sd">            Numpy array containing the Start sample of integration window.</span>
+<span class="sd">            Shape: (n_chan, n_pix).</span>
+<span class="sd">        w_width : ndarray</span>
+<span class="sd">            Numpy array containing the window size of integration window.</span>
+<span class="sd">            Shape (n_chan, n_pix).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">w_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_window_start</span><span class="p">(</span><span class="n">waveforms</span><span class="p">,</span> <span class="n">peakpos</span><span class="p">)</span>
+        <span class="n">w_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_window_width</span><span class="p">(</span><span class="n">waveforms</span><span class="p">)</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_window_width_and_start</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">w_start</span><span class="p">,</span> <span class="n">w_width</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">w_start</span><span class="p">,</span> <span class="n">w_width</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_window</span><span class="p">(</span><span class="n">waveforms</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the a numpy array of bools defining the integration window.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        waveforms : ndarray</span>
+<span class="sd">            Waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+<span class="sd">        start : ndarray</span>
+<span class="sd">            Numpy array containing the Start sample of integration window.</span>
+<span class="sd">            Shape: (n_chan, n_pix).</span>
+<span class="sd">        width : ndarray</span>
+<span class="sd">            Numpy array containing the window size of integration window.</span>
+<span class="sd">            Shape (n_chan, n_pix).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        integration_window : ndarray</span>
+<span class="sd">            Numpy array containing True where the samples lay within the</span>
+<span class="sd">            integration window, and False where the samples lay outside. Has</span>
+<span class="sd">            shape of (n_chan, n_pix, n_samples).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">width</span>
+
+        <span class="c1"># Obtain integration window using the indices of the waveforms array</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">integration_window</span> <span class="o">=</span> <span class="p">(</span><span class="n">ind</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ind</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">integration_window</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract_from_window</span><span class="p">(</span><span class="n">waveforms</span><span class="p">,</span> <span class="n">window</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract the charge but applying an intregration window to the </span>
+<span class="sd">        waveforms.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        waveforms : ndarray</span>
+<span class="sd">            Waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+<span class="sd">        window : ndarray</span>
+<span class="sd">            Numpy array containing True where the samples lay within the</span>
+<span class="sd">            integration window, and False where the samples lay outside. Has</span>
+<span class="sd">            shape of (n_chan, n_pix, n_samples).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        charge : ndarray</span>
+<span class="sd">            Extracted charge stored in a numpy array of shape (n_chan, n_pix).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">windowed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">waveforms</span><span class="p">,</span> <span class="n">mask</span><span class="o">=~</span><span class="n">window</span><span class="p">)</span>
+        <span class="n">charge</span> <span class="o">=</span> <span class="n">windowed</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">return</span> <span class="n">charge</span>
+
+    <span class="k">def</span> <span class="nf">get_window_from_waveforms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Consolidating function to obtain the window and peakpos given </span>
+<span class="sd">        a waveform.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        waveforms : ndarray</span>
+<span class="sd">            Waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        window : ndarray</span>
+<span class="sd">            Numpy array containing True where the samples lay within the</span>
+<span class="sd">            integration window, and False where the samples lay outside. Has</span>
+<span class="sd">            shape of (n_chan, n_pix, n_samples).</span>
+<span class="sd">        peakpos : ndarray</span>
+<span class="sd">            Numpy array of the peak position for each pixel. </span>
+<span class="sd">            Has shape of (n_chan, n_pix).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">peakpos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_peakpos</span><span class="p">(</span><span class="n">waveforms</span><span class="p">)</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_start_and_width</span><span class="p">(</span><span class="n">waveforms</span><span class="p">,</span> <span class="n">peakpos</span><span class="p">)</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">waveforms</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">window</span><span class="p">,</span> <span class="n">peakpos</span>
+
+    <span class="k">def</span> <span class="nf">extract_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="n">window</span><span class="p">,</span> <span class="n">peakpos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_window_from_waveforms</span><span class="p">(</span><span class="n">waveforms</span><span class="p">)</span>
+        <span class="n">charge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_from_window</span><span class="p">(</span><span class="n">waveforms</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">charge</span><span class="p">,</span> <span class="n">peakpos</span><span class="p">,</span> <span class="n">window</span>
+
+
+<div class="viewcode-block" id="FullIntegrator"><a class="viewcode-back" href="../../../api/ctapipe.image.charge_extractors.FullIntegrator.html#ctapipe.image.FullIntegrator">[docs]</a><span class="k">class</span> <span class="nc">FullIntegrator</span><span class="p">(</span><span class="n">Integrator</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Charge extractor that integrates the entire waveform.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        neighbours : list</span>
+<span class="sd">            List of neighbours for each pixel. Changes per telescope.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_window_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">,</span> <span class="n">peakpos</span><span class="p">):</span>
+        <span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">,</span> <span class="n">nsamples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_window_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">,</span> <span class="n">nsamples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">),</span> <span class="n">nsamples</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FullIntegrator.get_peakpos"><a class="viewcode-back" href="../../../api/ctapipe.image.charge_extractors.FullIntegrator.html#ctapipe.image.FullIntegrator.get_peakpos">[docs]</a>    <span class="k">def</span> <span class="nf">get_peakpos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">,</span> <span class="n">nsamples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">WindowIntegrator</span><span class="p">(</span><span class="n">Integrator</span><span class="p">):</span>
+    <span class="n">window_shift</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Define the shift of the integration window &#39;</span>
+                               <span class="s1">&#39;from the peakpos &#39;</span>
+                               <span class="s1">&#39;(peakpos - shift)&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">window_width</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Define the width of the integration &#39;</span>
+                               <span class="s1">&#39;window&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Base component for charge extractors that perform integration within</span>
+<span class="sd">        a window.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        neighbours : list</span>
+<span class="sd">            List of neighbours for each pixel. Changes per telescope.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_peakpos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obtain_peak_position</span><span class="p">(</span><span class="n">waveforms</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_window_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">,</span> <span class="n">peakpos</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">peakpos</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_shift</span>
+
+    <span class="k">def</span> <span class="nf">_get_window_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">,</span> <span class="n">nsamples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_width</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_obtain_peak_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the peak to define integration window around.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        waveforms : ndarray</span>
+<span class="sd">            Waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        peakpos : ndarray</span>
+<span class="sd">            Numpy array of the peak position for each pixel. Has shape of</span>
+<span class="sd">            (n_chan, n_pix).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="SimpleIntegrator"><a class="viewcode-back" href="../../../api/ctapipe.image.charge_extractors.SimpleIntegrator.html#ctapipe.image.SimpleIntegrator">[docs]</a><span class="k">class</span> <span class="nc">SimpleIntegrator</span><span class="p">(</span><span class="n">WindowIntegrator</span><span class="p">):</span>
+    <span class="n">t0</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Define the peak position for all &#39;</span>
+                     <span class="s1">&#39;pixels&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Charge extractor that integrates within a window defined by the user.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        neighbours : list</span>
+<span class="sd">            List of neighbours for each pixel. Changes per telescope.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_obtain_peak_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">,</span> <span class="n">nsamples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">t0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">PeakFindingIntegrator</span><span class="p">(</span><span class="n">WindowIntegrator</span><span class="p">):</span>
+    <span class="n">sig_amp_cut_HG</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Define the cut above which a sample is &#39;</span>
+                                <span class="s1">&#39;considered as significant for PeakFinding &#39;</span>
+                                <span class="s1">&#39;in the HG channel&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">sig_amp_cut_LG</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Define the cut above which a sample is &#39;</span>
+                                <span class="s1">&#39;considered as significant for PeakFinding &#39;</span>
+                                <span class="s1">&#39;in the LG channel&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Base component for charge extractors that perform integration within</span>
+<span class="sd">        a window defined around a peak position.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        neighbours : list</span>
+<span class="sd">            List of neighbours for each pixel. Changes per telescope.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sig_channel</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sig_pixels</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Extract significant entries</span>
+    <span class="k">def</span> <span class="nf">_extract_significant_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain the samples that the user has specified as significant.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        waveforms : ndarray</span>
+<span class="sd">            Waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        significant_samples : masked ndarray</span>
+<span class="sd">            Identical to waveforms, except the insignificant samples are</span>
+<span class="sd">            masked.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">,</span> <span class="n">nsamples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_amp_cut_LG</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_amp_cut_HG</span><span class="p">:</span>
+            <span class="n">sig_entries</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_amp_cut_HG</span><span class="p">:</span>
+                <span class="n">sig_entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">waveforms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_amp_cut_HG</span>
+            <span class="k">if</span> <span class="n">nchan</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_amp_cut_LG</span><span class="p">:</span>
+                <span class="n">sig_entries</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">waveforms</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_amp_cut_LG</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sig_pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">sig_entries</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sig_channel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sig_pixels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_channel</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;sigamp excludes all values in HG channel&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">waveforms</span><span class="p">,</span> <span class="n">mask</span><span class="o">=~</span><span class="n">sig_entries</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sig_channel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sig_pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">waveforms</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_obtain_peak_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="GlobalPeakIntegrator"><a class="viewcode-back" href="../../../api/ctapipe.image.charge_extractors.GlobalPeakIntegrator.html#ctapipe.image.GlobalPeakIntegrator">[docs]</a><span class="k">class</span> <span class="nc">GlobalPeakIntegrator</span><span class="p">(</span><span class="n">PeakFindingIntegrator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Charge extractor that defines an integration window about the global</span>
+<span class="sd">    peak in the image.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    neighbours : list</span>
+<span class="sd">        List of neighbours for each pixel. Changes per telescope.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : traitlets.loader.Config</span>
+<span class="sd">        Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">        Used to set traitlet values.</span>
+<span class="sd">        Set to None if no configuration to pass.</span>
+<span class="sd">    tool : ctapipe.core.Tool</span>
+<span class="sd">        Tool executable that is calling this component.</span>
+<span class="sd">        Passes the correct logger to the component.</span>
+<span class="sd">        Set to None if no Tool to pass.</span>
+<span class="sd">    kwargs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_obtain_peak_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">,</span> <span class="n">nsamples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">significant_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_significant_entries</span><span class="p">(</span><span class="n">waveforms</span><span class="p">)</span>
+        <span class="n">max_t</span> <span class="o">=</span> <span class="n">significant_samples</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">max_s</span> <span class="o">=</span> <span class="n">significant_samples</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">peakpos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="n">peakpos</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">max_t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">max_s</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">nchan</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_channel</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">peakpos</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">max_t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">max_s</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;LG not significant, using HG for peak finding &quot;</span>
+                              <span class="s2">&quot;instead&quot;</span><span class="p">)</span>
+                <span class="n">peakpos</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">peakpos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">peakpos</span></div>
+
+
+<div class="viewcode-block" id="LocalPeakIntegrator"><a class="viewcode-back" href="../../../api/ctapipe.image.charge_extractors.LocalPeakIntegrator.html#ctapipe.image.LocalPeakIntegrator">[docs]</a><span class="k">class</span> <span class="nc">LocalPeakIntegrator</span><span class="p">(</span><span class="n">PeakFindingIntegrator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     Charge extractor that defines an integration window about the local</span>
+<span class="sd">     peak in each pixel.</span>
+
+<span class="sd">     Attributes</span>
+<span class="sd">     ----------</span>
+<span class="sd">     neighbours : list</span>
+<span class="sd">         List of neighbours for each pixel. Changes per telescope.</span>
+
+<span class="sd">     Parameters</span>
+<span class="sd">     ----------</span>
+<span class="sd">     config : traitlets.loader.Config</span>
+<span class="sd">         Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">         Used to set traitlet values.</span>
+<span class="sd">         Set to None if no configuration to pass.</span>
+<span class="sd">     tool : ctapipe.core.Tool</span>
+<span class="sd">         Tool executable that is calling this component.</span>
+<span class="sd">         Passes the correct logger to the component.</span>
+<span class="sd">         Set to None if no Tool to pass.</span>
+<span class="sd">     kwargs</span>
+<span class="sd">     &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_obtain_peak_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">,</span> <span class="n">nsamples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">significant_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_significant_entries</span><span class="p">(</span><span class="n">waveforms</span><span class="p">)</span>
+        <span class="n">peakpos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">),</span> <span class="n">significant_samples</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+                          <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="n">sig_pix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_pixels</span>
+        <span class="k">if</span> <span class="n">nchan</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># If the LG is not significant, use the HG peakpos</span>
+            <span class="n">peakpos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sig_pix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">sig_pix</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                  <span class="n">peakpos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">peakpos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">peakpos</span></div>
+
+
+<div class="viewcode-block" id="NeighbourPeakIntegrator"><a class="viewcode-back" href="../../../api/ctapipe.image.charge_extractors.NeighbourPeakIntegrator.html#ctapipe.image.NeighbourPeakIntegrator">[docs]</a><span class="k">class</span> <span class="nc">NeighbourPeakIntegrator</span><span class="p">(</span><span class="n">PeakFindingIntegrator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Charge extractor that defines an integration window defined by the</span>
+<span class="sd">    peaks in the neighbouring pixels.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    neighbours : list</span>
+<span class="sd">        List of neighbours for each pixel. Changes per telescope.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : traitlets.loader.Config</span>
+<span class="sd">        Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">        Used to set traitlet values.</span>
+<span class="sd">        Set to None if no configuration to pass.</span>
+<span class="sd">    tool : ctapipe.core.Tool</span>
+<span class="sd">        Tool executable that is calling this component.</span>
+<span class="sd">        Passes the correct logger to the component.</span>
+<span class="sd">        Set to None if no Tool to pass.</span>
+<span class="sd">    kwargs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lwt</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Weight of the local pixel (0: peak from neighbours &#39;</span>
+                      <span class="s1">&#39;only, 1: local pixel counts as much &#39;</span>
+                      <span class="s1">&#39;as any neighbour&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NeighbourPeakIntegrator.requires_neighbours"><a class="viewcode-back" href="../../../api/ctapipe.image.charge_extractors.NeighbourPeakIntegrator.html#ctapipe.image.NeighbourPeakIntegrator.requires_neighbours">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">requires_neighbours</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="nf">_obtain_peak_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">significant_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_significant_entries</span><span class="p">(</span><span class="n">waveforms</span><span class="p">)</span>
+        <span class="n">sig_sam</span> <span class="o">=</span> <span class="n">significant_samples</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">sum_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">sig_sam</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbours</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+        <span class="n">get_sum_array</span><span class="p">(</span><span class="n">sig_sam</span><span class="p">,</span> <span class="n">sum_data</span><span class="p">,</span> <span class="o">*</span><span class="n">shape</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">lwt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sum_data</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AverageWfPeakIntegrator"><a class="viewcode-back" href="../../../api/ctapipe.image.charge_extractors.AverageWfPeakIntegrator.html#ctapipe.image.AverageWfPeakIntegrator">[docs]</a><span class="k">class</span> <span class="nc">AverageWfPeakIntegrator</span><span class="p">(</span><span class="n">PeakFindingIntegrator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Charge extractor that defines an integration window defined by the </span>
+<span class="sd">    average waveform across all pixels.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    neighbours : list</span>
+<span class="sd">        List of neighbours for each pixel. Changes per telescope.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : traitlets.loader.Config</span>
+<span class="sd">        Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">        Used to set traitlet values.</span>
+<span class="sd">        Set to None if no configuration to pass.</span>
+<span class="sd">    tool : ctapipe.core.Tool</span>
+<span class="sd">        Tool executable that is calling this component.</span>
+<span class="sd">        Passes the correct logger to the component.</span>
+<span class="sd">        Set to None if no Tool to pass.</span>
+<span class="sd">    kwargs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_obtain_peak_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">,</span> <span class="n">nsamples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">significant_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_significant_entries</span><span class="p">(</span><span class="n">waveforms</span><span class="p">)</span>
+        <span class="n">peakpos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nchan</span><span class="p">,</span> <span class="n">npix</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="n">avg_wf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">significant_samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">peakpos</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">avg_wf</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">peakpos</span></div>
+
+
+<div class="viewcode-block" id="ChargeExtractorFactory"><a class="viewcode-back" href="../../../api/ctapipe.image.charge_extractors.ChargeExtractorFactory.html#ctapipe.image.ChargeExtractorFactory">[docs]</a><span class="k">class</span> <span class="nc">ChargeExtractorFactory</span><span class="p">(</span><span class="n">Factory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory to obtain a ChargeExtractor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">ChargeExtractor</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="s1">&#39;NeighbourPeakIntegrator&#39;</span>
+    <span class="n">custom_product_help</span> <span class="o">=</span> <span class="s1">&#39;Charge extraction scheme to use.&#39;</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

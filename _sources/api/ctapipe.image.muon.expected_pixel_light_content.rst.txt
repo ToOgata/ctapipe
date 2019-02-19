@@ -1,0 +1,6 @@
+expected_pixel_light_content
+============================
+
+.. currentmodule:: ctapipe.image.muon
+
+.. autofunction:: expected_pixel_light_content

@@ -1,0 +1,37 @@
+Tool
+====
+
+.. currentmodule:: ctapipe.core
+
+.. autoclass:: Tool
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Tool.config_file
+      ~Tool.version_string
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~Tool.finish
+      ~Tool.initialize
+      ~Tool.run
+      ~Tool.setup
+      ~Tool.start
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: config_file
+   .. autoattribute:: version_string
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: finish
+   .. automethod:: initialize
+   .. automethod:: run
+   .. automethod:: setup
+   .. automethod:: start

@@ -1,0 +1,6 @@
+efficiency_fit
+==============
+
+.. currentmodule:: ctapipe.image.muon
+
+.. autofunction:: efficiency_fit

@@ -1,0 +1,6 @@
+impact_parameter_chisq_fit
+==========================
+
+.. currentmodule:: ctapipe.image
+
+.. autofunction:: impact_parameter_chisq_fit

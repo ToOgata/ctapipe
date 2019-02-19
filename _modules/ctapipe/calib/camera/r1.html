@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ctapipe.calib.camera.r1 &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>ctapipe.calib.camera.r1</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ctapipe.calib.camera.r1</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calibrator for the R0 -&gt; R1 data level transition.</span>
+
+<span class="sd">This module handles the calibration from the R0 data level to R1. This data</span>
+<span class="sd">level transition will be handled by the camera servers, not in the pipeline,</span>
+<span class="sd">however the pipeline can be used as a test-bench in the comissioning stage of</span>
+<span class="sd">the cameras.</span>
+
+<span class="sd">As the R1 calibration is camera specific, each camera (and seperately the MC)</span>
+<span class="sd">requires their own calibrator class with inherits from `CameraR1Calibrator`.</span>
+<span class="sd">`HessioR1Calibrator` is the calibrator for the MC data obtained from readhess.</span>
+<span class="sd">Through the use of `CameraR1CalibratorFactory`, the correct</span>
+<span class="sd">`CameraR1Calibrator` can be obtained based on the origin (MC/Camera format)</span>
+<span class="sd">of the data.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">...core</span> <span class="k">import</span> <span class="n">Component</span><span class="p">,</span> <span class="n">Factory</span>
+<span class="kn">from</span> <span class="nn">...core.traits</span> <span class="k">import</span> <span class="n">Unicode</span>
+<span class="kn">from</span> <span class="nn">...io</span> <span class="k">import</span> <span class="n">EventSource</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;NullR1Calibrator&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;HESSIOR1Calibrator&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;TargetIOR1Calibrator&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CameraR1CalibratorFactory&#39;</span>
+<span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">CameraR1Calibrator</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The base R1-level calibrator. Fills the r1 container.</span>
+
+<span class="sd">    The R1 calibrator performs the camera-specific R1 calibration that is</span>
+<span class="sd">    usually performed on the raw data by the camera server. This calibrator</span>
+<span class="sd">    exists in ctapipe for testing and prototyping purposes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : traitlets.loader.Config</span>
+<span class="sd">        Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">        Used to set traitlet values.</span>
+<span class="sd">        Set to None if no configuration to pass.</span>
+<span class="sd">    tool : ctapipe.core.Tool or None</span>
+<span class="sd">        Tool executable that is calling this component.</span>
+<span class="sd">        Passes the correct logger to the component.</span>
+<span class="sd">        Set to None if no Tool to pass.</span>
+<span class="sd">    kwargs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parent class for the r1 calibrators. Fills the r1 container.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool or None</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_r0_empty_warn</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to be defined in child class.</span>
+
+<span class="sd">        Perform the conversion from raw R0 data to R1 data</span>
+<span class="sd">        (ADC Samples -&gt; PE Samples), and fill the r1 container.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : container</span>
+<span class="sd">            A `ctapipe` event container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">check_r0_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">telid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check that r0 data exists. If it does not, then do not change r1.</span>
+
+<span class="sd">        This ensures that if the containers were filled from a file containing</span>
+<span class="sd">        r0 data, it is not overwritten by non-existant data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : container</span>
+<span class="sd">            A `ctapipe` event container</span>
+<span class="sd">        telid : int</span>
+<span class="sd">            The telescope id.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if r0.tel[telid].waveform is not None, else false.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r0</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">r0</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span>
+        <span class="k">if</span> <span class="n">r0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_r0_empty_warn</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Encountered an event with no R0 data. &quot;</span>
+                                 <span class="s2">&quot;R1 is unchanged in this circumstance.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_r0_empty_warn</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="NullR1Calibrator"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.r1.NullR1Calibrator.html#ctapipe.calib.NullR1Calibrator">[docs]</a><span class="k">class</span> <span class="nc">NullR1Calibrator</span><span class="p">(</span><span class="n">CameraR1Calibrator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A dummy R1 calibrator that simply fills the r1 container with the samples</span>
+<span class="sd">    from the r0 container.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : traitlets.loader.Config</span>
+<span class="sd">        Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">        Used to set traitlet values.</span>
+<span class="sd">        Set to None if no configuration to pass.</span>
+<span class="sd">    tool : ctapipe.core.Tool or None</span>
+<span class="sd">        Tool executable that is calling this component.</span>
+<span class="sd">        Passes the correct logger to the component.</span>
+<span class="sd">        Set to None if no Tool to pass.</span>
+<span class="sd">    kwargs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using NullR1Calibrator, if event source is at &quot;</span>
+                      <span class="s2">&quot;the R0 level, then r1 samples will equal r0 samples&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NullR1Calibrator.calibrate"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.r1.NullR1Calibrator.html#ctapipe.calib.NullR1Calibrator.calibrate">[docs]</a>    <span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">telid</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">r0</span><span class="o">.</span><span class="n">tels_with_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_r0_exists</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">telid</span><span class="p">):</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">r0</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">r1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="HESSIOR1Calibrator"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.r1.HESSIOR1Calibrator.html#ctapipe.calib.HESSIOR1Calibrator">[docs]</a><span class="k">class</span> <span class="nc">HESSIOR1Calibrator</span><span class="p">(</span><span class="n">CameraR1Calibrator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The R1 calibrator for hessio files. Fills the r1 container.</span>
+
+<span class="sd">    This calibrator correctly applies the pedestal subtraction and conversion</span>
+<span class="sd">    from counts to photoelectrons for the Monte-Carlo data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : traitlets.loader.Config</span>
+<span class="sd">        Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">        Used to set traitlet values.</span>
+<span class="sd">        Set to None if no configuration to pass.</span>
+<span class="sd">    tool : ctapipe.core.Tool or None</span>
+<span class="sd">        Tool executable that is calling this component.</span>
+<span class="sd">        Passes the correct logger to the component.</span>
+<span class="sd">        Set to None if no Tool to pass.</span>
+<span class="sd">    kwargs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">calib_scale</span> <span class="o">=</span> <span class="mf">1.05</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    CALIB_SCALE is only relevant for MC calibration.</span>
+
+<span class="sd">    CALIB_SCALE is the factor needed to transform from mean p.e. units to </span>
+<span class="sd">    units of the single-p.e. peak: Depends on the collection efficiency, </span>
+<span class="sd">    the asymmetry of the single p.e. amplitude  distribution and the </span>
+<span class="sd">    electronic noise added to the signals. Default value is for GCT.</span>
+
+<span class="sd">    To correctly calibrate to number of photoelectron, a fresh SPE calibration</span>
+<span class="sd">    should be applied using a SPE sim_telarray run with an </span>
+<span class="sd">    artificial light source.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: Handle calib_scale differently per simlated telescope</span>
+
+<div class="viewcode-block" id="HESSIOR1Calibrator.calibrate"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.r1.HESSIOR1Calibrator.html#ctapipe.calib.HESSIOR1Calibrator.calibrate">[docs]</a>    <span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;hessio&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Using HESSIOR1Calibrator to calibrate a &#39;</span>
+                             <span class="s1">&#39;non-hessio event.&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">telid</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">r0</span><span class="o">.</span><span class="n">tels_with_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_r0_exists</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">telid</span><span class="p">):</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">r0</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span>
+                <span class="n">n_samples</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">ped</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">pedestal</span> <span class="o">/</span> <span class="n">n_samples</span>
+                <span class="n">gain</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">dc_to_pe</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">calib_scale</span>
+                <span class="n">calibrated</span> <span class="o">=</span> <span class="p">(</span><span class="n">samples</span> <span class="o">-</span> <span class="n">ped</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">*</span> <span class="n">gain</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">r1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span> <span class="o">=</span> <span class="n">calibrated</span></div></div>
+
+
+<div class="viewcode-block" id="TargetIOR1Calibrator"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.r1.TargetIOR1Calibrator.html#ctapipe.calib.TargetIOR1Calibrator">[docs]</a><span class="k">class</span> <span class="nc">TargetIOR1Calibrator</span><span class="p">(</span><span class="n">CameraR1Calibrator</span><span class="p">):</span>
+
+    <span class="n">pedestal_path</span> <span class="o">=</span> <span class="n">Unicode</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the TargetCalib pedestal file&#39;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">tf_path</span> <span class="o">=</span> <span class="n">Unicode</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the TargetCalib Transfer Function file&#39;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pe_path</span> <span class="o">=</span> <span class="n">Unicode</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the TargetCalib pe conversion file&#39;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ff_path</span> <span class="o">=</span> <span class="n">Unicode</span><span class="p">(</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to a TargetCalib flat field file&#39;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The R1 calibrator for targetio files (i.e. files containing data</span>
+<span class="sd">        taken with a TARGET module, such as with CHEC)</span>
+
+<span class="sd">        Fills the r1 container.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">target_calib</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Cannot find target_calib module, please follow &quot;</span>
+                   <span class="s2">&quot;installation instructions from https://forge.in2p3.fr/&quot;</span>
+                   <span class="s2">&quot;projects/gct/wiki/Installing_CHEC_Software&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_r1_wf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tc</span> <span class="o">=</span> <span class="n">target_calib</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calibrator</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">telid</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_calib</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TargetIOR1Calibrator.calibrate"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.r1.TargetIOR1Calibrator.html#ctapipe.calib.TargetIOR1Calibrator.calibrate">[docs]</a>    <span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Placeholder function to satisfy abstract parent, this is overloaded by</span>
+<span class="sd">        either fake_calibrate or real_calibrate.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_calib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If a pedestal file has been supplied, create a target_calib</span>
+<span class="sd">        Calibrator object. If it hasn&#39;t then point calibrate to</span>
+<span class="sd">        fake_calibrate, where nothing is done to the waveform.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pedestal_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calibrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tc</span><span class="o">.</span><span class="n">Calibrator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pedestal_path</span><span class="p">,</span>
+                                                 <span class="bp">self</span><span class="o">.</span><span class="n">tf_path</span><span class="p">,</span>
+                                                 <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pe_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ff_path</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_calibrate</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No pedestal path supplied, &quot;</span>
+                             <span class="s2">&quot;r1 samples will equal r0 samples.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fake_calibrate</span>
+
+<div class="viewcode-block" id="TargetIOR1Calibrator.fake_calibrate"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.r1.TargetIOR1Calibrator.html#ctapipe.calib.TargetIOR1Calibrator.fake_calibrate">[docs]</a>    <span class="k">def</span> <span class="nf">fake_calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Don&#39;t perform any calibration on the waveforms, just fill the</span>
+<span class="sd">        R1 container.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : `ctapipe` event-container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;targetio&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Using TargetioR1Calibrator to calibrate a &#39;</span>
+                             <span class="s1">&#39;non-targetio event.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_r0_exists</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">telid</span><span class="p">):</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">r0</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">r1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TargetIOR1Calibrator.real_calibrate"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.r1.TargetIOR1Calibrator.html#ctapipe.calib.TargetIOR1Calibrator.real_calibrate">[docs]</a>    <span class="k">def</span> <span class="nf">real_calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the R1 calibration defined in target_calib and fill the</span>
+<span class="sd">        R1 container.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : `ctapipe` event-container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;targetio&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Using TargetioR1Calibrator to calibrate a &#39;</span>
+                             <span class="s1">&#39;non-targetio event.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_r0_exists</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">telid</span><span class="p">):</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">r0</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_r1_wf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_r1_wf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">fci</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">targetio</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">first_cell_ids</span>
+            <span class="n">r1</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">r1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calibrator</span><span class="o">.</span><span class="n">ApplyEvent</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fci</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_r1_wf</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">r1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_r1_wf</span></div></div>
+
+
+<div class="viewcode-block" id="CameraR1CalibratorFactory"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.r1.CameraR1CalibratorFactory.html#ctapipe.calib.CameraR1CalibratorFactory">[docs]</a><span class="k">class</span> <span class="nc">CameraR1CalibratorFactory</span><span class="p">(</span><span class="n">Factory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The R1 calibrator `ctapipe.core.factory.Factory`. This</span>
+<span class="sd">    `ctapipe.core.factory.Factory` allows the correct</span>
+<span class="sd">    `CameraR1Calibrator` to be obtained for the data investigated.</span>
+
+<span class="sd">    Additional filepaths are required by some cameras for R1 calibration. Due</span>
+<span class="sd">    to the current inplementation of `ctapipe.core.factory.Factory`, every</span>
+<span class="sd">    trait that could</span>
+<span class="sd">    possibly be required for a child `ctapipe.core.component.Component` of</span>
+<span class="sd">    `CameraR1Calibrator` is</span>
+<span class="sd">    included in this `ctapipe.core.factory.Factory`. The</span>
+<span class="sd">    `CameraR1Calibrator` specific to a</span>
+<span class="sd">    camera type should then define how/if that filepath should be used. The</span>
+<span class="sd">    format of the file is not restricted, and the file can be read from inside</span>
+<span class="sd">    ctapipe, or can call a different library created by the camera teams for</span>
+<span class="sd">    the calibration of their camera.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">CameraR1Calibrator</span>
+    <span class="n">custom_product_help</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;R1 Calibrator to use. If None then a &#39;</span>
+                           <span class="s1">&#39;calibrator will either be selected based on the &#39;</span>
+                           <span class="s1">&#39;supplied EventSource, or will default to &#39;</span>
+                           <span class="s1">&#39;&quot;NullR1Calibrator&quot;.&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eventsource</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        eventsource : ctapipe.io.eventsource.EventSource</span>
+<span class="sd">            EventSource that is being used to read the events. The EventSource</span>
+<span class="sd">            contains information (such as metadata or inst) which indicates</span>
+<span class="sd">            the appropriate R1Calibrator to use.</span>
+<span class="sd">        kwargs</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">eventsource</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">eventsource</span><span class="p">),</span> <span class="n">EventSource</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;eventsource must be a ctapipe.io.eventsource.EventSource&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eventsource</span> <span class="o">=</span> <span class="n">eventsource</span>
+
+    <span class="k">def</span> <span class="nf">_get_product_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_product_name</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">es</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eventsource</span>
+            <span class="k">if</span> <span class="n">es</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">es</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;is_simulation&#39;</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="s1">&#39;HESSIOR1Calibrator&#39;</span>
+                <span class="k">elif</span> <span class="n">es</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;TargetIOEventSource&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;TargetIOR1Calibrator&#39;</span>
+            <span class="k">return</span> <span class="s1">&#39;NullR1Calibrator&#39;</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

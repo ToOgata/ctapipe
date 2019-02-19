@@ -1,0 +1,57 @@
+SubarrayDescription
+===================
+
+.. currentmodule:: ctapipe.instrument
+
+.. autoclass:: SubarrayDescription
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SubarrayDescription.camera_types
+      ~SubarrayDescription.footprint
+      ~SubarrayDescription.num_tels
+      ~SubarrayDescription.optics_types
+      ~SubarrayDescription.pos_x
+      ~SubarrayDescription.pos_y
+      ~SubarrayDescription.pos_z
+      ~SubarrayDescription.tel
+      ~SubarrayDescription.tel_coords
+      ~SubarrayDescription.tel_ids
+      ~SubarrayDescription.tel_indices
+      ~SubarrayDescription.telescope_types
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SubarrayDescription.get_tel_ids_for_type
+      ~SubarrayDescription.info
+      ~SubarrayDescription.peek
+      ~SubarrayDescription.select_subarray
+      ~SubarrayDescription.to_table
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: camera_types
+   .. autoattribute:: footprint
+   .. autoattribute:: num_tels
+   .. autoattribute:: optics_types
+   .. autoattribute:: pos_x
+   .. autoattribute:: pos_y
+   .. autoattribute:: pos_z
+   .. autoattribute:: tel
+   .. autoattribute:: tel_coords
+   .. autoattribute:: tel_ids
+   .. autoattribute:: tel_indices
+   .. autoattribute:: telescope_types
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_tel_ids_for_type
+   .. automethod:: info
+   .. automethod:: peek
+   .. automethod:: select_subarray
+   .. automethod:: to_table

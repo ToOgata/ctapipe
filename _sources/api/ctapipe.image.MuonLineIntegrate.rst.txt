@@ -1,0 +1,31 @@
+MuonLineIntegrate
+=================
+
+.. currentmodule:: ctapipe.image
+
+.. autoclass:: MuonLineIntegrate
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~MuonLineIntegrate.calc_likelihood
+      ~MuonLineIntegrate.chord_length
+      ~MuonLineIntegrate.fit_muon
+      ~MuonLineIntegrate.image_prediction
+      ~MuonLineIntegrate.intersect_circle
+      ~MuonLineIntegrate.likelihood
+      ~MuonLineIntegrate.plot_pos
+      ~MuonLineIntegrate.pos_to_angle
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: calc_likelihood
+   .. automethod:: chord_length
+   .. automethod:: fit_muon
+   .. automethod:: image_prediction
+   .. automethod:: intersect_circle
+   .. automethod:: likelihood
+   .. automethod:: plot_pos
+   .. automethod:: pos_to_angle

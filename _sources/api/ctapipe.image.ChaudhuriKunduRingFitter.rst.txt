@@ -1,0 +1,17 @@
+ChaudhuriKunduRingFitter
+========================
+
+.. currentmodule:: ctapipe.image
+
+.. autoclass:: ChaudhuriKunduRingFitter
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ChaudhuriKunduRingFitter.fit
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: fit

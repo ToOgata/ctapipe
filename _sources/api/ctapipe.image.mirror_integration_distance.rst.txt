@@ -1,0 +1,6 @@
+mirror_integration_distance
+===========================
+
+.. currentmodule:: ctapipe.image
+
+.. autofunction:: mirror_integration_distance

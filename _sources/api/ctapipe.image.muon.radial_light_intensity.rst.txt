@@ -1,0 +1,6 @@
+radial_light_intensity
+======================
+
+.. currentmodule:: ctapipe.image.muon
+
+.. autofunction:: radial_light_intensity

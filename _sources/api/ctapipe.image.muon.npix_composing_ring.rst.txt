@@ -1,0 +1,6 @@
+npix_composing_ring
+===================
+
+.. currentmodule:: ctapipe.image.muon
+
+.. autofunction:: npix_composing_ring

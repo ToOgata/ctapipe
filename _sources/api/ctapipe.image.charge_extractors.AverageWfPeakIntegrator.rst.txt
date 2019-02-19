@@ -1,0 +1,7 @@
+AverageWfPeakIntegrator
+=======================
+
+.. currentmodule:: ctapipe.image.charge_extractors
+
+.. autoclass:: AverageWfPeakIntegrator
+   :show-inheritance:

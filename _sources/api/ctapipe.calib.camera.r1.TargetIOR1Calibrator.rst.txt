@@ -1,0 +1,37 @@
+TargetIOR1Calibrator
+====================
+
+.. currentmodule:: ctapipe.calib.camera.r1
+
+.. autoclass:: TargetIOR1Calibrator
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~TargetIOR1Calibrator.ff_path
+      ~TargetIOR1Calibrator.pe_path
+      ~TargetIOR1Calibrator.pedestal_path
+      ~TargetIOR1Calibrator.tf_path
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~TargetIOR1Calibrator.calibrate
+      ~TargetIOR1Calibrator.fake_calibrate
+      ~TargetIOR1Calibrator.real_calibrate
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: ff_path
+   .. autoattribute:: pe_path
+   .. autoattribute:: pedestal_path
+   .. autoattribute:: tf_path
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: calibrate
+   .. automethod:: fake_calibrate
+   .. automethod:: real_calibrate

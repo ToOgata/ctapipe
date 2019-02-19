@@ -1,0 +1,33 @@
+OpticsDescription
+=================
+
+.. currentmodule:: ctapipe.instrument
+
+.. autoclass:: OpticsDescription
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~OpticsDescription.identifier
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~OpticsDescription.from_name
+      ~OpticsDescription.get_known_optics_names
+      ~OpticsDescription.guess
+      ~OpticsDescription.info
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: identifier
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_name
+   .. automethod:: get_known_optics_names
+   .. automethod:: guess
+   .. automethod:: info

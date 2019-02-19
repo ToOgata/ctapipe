@@ -1,0 +1,464 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ctapipe.core.factory &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>ctapipe.core.factory</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ctapipe.core.factory</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">ctapipe.core.component</span> <span class="k">import</span> <span class="n">Component</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="k">import</span> <span class="n">isabstract</span>
+<span class="kn">from</span> <span class="nn">traitlets.config.loader</span> <span class="k">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">traitlets</span> <span class="k">import</span> <span class="n">CaselessStrEnum</span>
+
+
+<span class="k">class</span> <span class="nc">FactoryMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">Component</span><span class="p">),</span> <span class="nb">type</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">):</span>
+
+        <span class="c1"># Setup class lookup</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;base&#39;</span><span class="p">]</span>
+        <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;subclasses&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;subclass_names&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">base</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">Component</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Factory.base must be set to a Component&quot;</span><span class="p">)</span>
+
+            <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;subclasses&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">child_subclasses</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+            <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;subclass_names&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;subclasses&#39;</span><span class="p">]]</span>
+
+            <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="s1">&#39;default&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dct</span> <span class="k">else</span> <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span>
+            <span class="n">help_msg</span> <span class="o">=</span> <span class="s1">&#39;Product class to obtain from the Factory.&#39;</span>
+            <span class="k">if</span> <span class="s1">&#39;custom_product_help&#39;</span> <span class="ow">in</span> <span class="n">dct</span> <span class="ow">and</span> <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;custom_product_help&#39;</span><span class="p">]:</span>
+                <span class="n">help_msg</span> <span class="o">=</span> <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;custom_product_help&#39;</span><span class="p">]</span>
+            <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;product&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CaselessStrEnum</span><span class="p">(</span>
+                <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;subclass_names&#39;</span><span class="p">],</span>
+                <span class="n">default</span><span class="p">,</span>
+                <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="n">help_msg</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Gather a record of which traits are valid for which subclasses</span>
+            <span class="c1"># and copy subclass traits</span>
+            <span class="n">traits</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">record</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">dct</span><span class="p">[</span><span class="s1">&#39;subclasses&#39;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">sub</span><span class="o">.</span><span class="n">class_traits</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="s1">&#39;parent&#39;</span><span class="p">]:</span>
+                        <span class="k">continue</span>
+                    <span class="n">record</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">traits</span><span class="p">:</span>
+                        <span class="n">traits</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">trait</span><span class="p">)</span>
+
+            <span class="c1"># Add subclass traits to Factory and include a list of valid</span>
+            <span class="c1"># sublasses for the trait help message</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">traits</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">trait</span><span class="o">.</span><span class="n">help</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Compatible Components: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                <span class="n">dct</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">trait</span>
+
+        <span class="k">return</span> <span class="nb">type</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">child_subclasses</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all non-abstract subclasses of a base class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        base : class</span>
+<span class="sd">            high level class object that is inherited by the</span>
+<span class="sd">            desired subclasses</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        children : list</span>
+<span class="sd">            list of non-abstract subclasses</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">family</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="n">g</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">base</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">FactoryMeta</span><span class="o">.</span><span class="n">child_subclasses</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="n">g</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">family</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">isabstract</span><span class="p">(</span><span class="n">g</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">children</span>
+
+
+<div class="viewcode-block" id="Factory"><a class="viewcode-back" href="../../../api/ctapipe.core.Factory.html#ctapipe.core.Factory">[docs]</a><span class="k">class</span> <span class="nc">Factory</span><span class="p">(</span><span class="n">Component</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">FactoryMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A base class for all class factories that exist in the `Tools`/`Components`</span>
+<span class="sd">    frameworks.</span>
+
+<span class="sd">    To create a Factory, inherit this class and set `base` to the</span>
+<span class="sd">    base-class of the Factory.</span>
+
+<span class="sd">    The traits of the sub-classes are automatically added to the Factory</span>
+<span class="sd">    (and are included in the help message).</span>
+
+<span class="sd">    The traits and kwargsthat correctly correspond to the product are passed</span>
+<span class="sd">    onto the product.</span>
+
+<span class="sd">    To use a factory from within a `ctapipe.core.tool.Tool`:</span>
+
+<span class="sd">    &gt;&gt;&gt; cls = Factory.produce(config=self.config, tool=self)</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    base : type</span>
+<span class="sd">        The base-class for the different classes that could be returned from</span>
+<span class="sd">        the factory</span>
+<span class="sd">    product : traitlets.CaselessStrEnum</span>
+<span class="sd">        The traitlet allowing the manual specification of which class is</span>
+<span class="sd">        returned from the factory. This is created in `FactoryMeta`.</span>
+<span class="sd">    subclasses : list</span>
+<span class="sd">        A list of the subclasses for the base-class specified in `base`</span>
+<span class="sd">    subclass_names : list</span>
+<span class="sd">        The names of the classes in `subclasses`</span>
+<span class="sd">    default : str</span>
+<span class="sd">        The default product to return. If None, then there is no default.</span>
+<span class="sd">    custom_product_help : None or str</span>
+<span class="sd">        If set, then this text will be displayed for the help message for the</span>
+<span class="sd">        product traitlet.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">product</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Instanced as a traitlet by FactoryMeta</span>
+    <span class="n">subclasses</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Filled by FactoryMeta</span>
+    <span class="n">subclass_names</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Filled by FactoryMeta</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">custom_product_help</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Base Factory class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        kwargs</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Factory.base must be set to a Component&quot;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_product_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to obtain the correct name for the product.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The name of the product to return from the Factory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">product</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">product</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;The user has not specified a product for </span><span class="si">{}</span><span class="s2">&quot;</span>
+                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_product</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain the class constructor for the specified product name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        product : class</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subclass_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subclass_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subclasses</span><span class="p">))</span>
+        <span class="n">product_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_product_name</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Obtaining </span><span class="si">{}</span><span class="s2"> from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">product_name</span><span class="p">,</span>
+                                                    <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">product</span> <span class="o">=</span> <span class="n">subclass_dict</span><span class="p">[</span><span class="n">product_name</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">product</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s1">&#39;No product found with name &quot;</span><span class="si">{}</span><span class="s1">&quot; for &#39;</span>
+                               <span class="s1">&#39;factory.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">product_name</span><span class="p">))</span>
+            <span class="k">raise</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain an instance of the product class with the config and arguments</span>
+<span class="sd">        correctly copied from the Factory to the product.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        instance</span>
+<span class="sd">            Instance of the product class that is the purpose of the factory</span>
+<span class="sd">            to produce.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">product</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_product</span>
+        <span class="n">product_traits</span> <span class="o">=</span> <span class="n">product</span><span class="o">.</span><span class="n">class_trait_names</span><span class="p">()</span>
+        <span class="n">product_args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">product</span><span class="o">.</span><span class="fm">__init__</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_varnames</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">&#39;_trait_values&#39;</span><span class="p">][</span><span class="s1">&#39;config&#39;</span><span class="p">])</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">&#39;_trait_values&#39;</span><span class="p">][</span><span class="s1">&#39;parent&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Update traitlet defaults (they may have been changed via the Factory)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">class_own_traits</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subclasses</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">sub_trait</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">class_traits</span><span class="p">()[</span><span class="n">name</span><span class="p">]</span>
+                    <span class="n">sub_trait</span><span class="o">.</span><span class="n">default_value</span> <span class="o">=</span> <span class="n">trait</span><span class="o">.</span><span class="n">default_value</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]:</span>
+            <span class="c1"># If Product config does not exist, create new Config instance</span>
+            <span class="c1"># Note: `config[product.__name__]` requires Config, not dict</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="n">product</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]:</span>
+                <span class="n">config</span><span class="p">[</span><span class="n">product</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+
+            <span class="c1"># Copy Factory config to Product config</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">product_traits</span><span class="p">:</span>
+                    <span class="n">config</span><span class="p">[</span><span class="n">product</span><span class="o">.</span><span class="vm">__name__</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Copy valid arguments to kwargs</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">product_traits</span> <span class="o">+</span> <span class="n">product_args</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">instance</span>
+
+<div class="viewcode-block" id="Factory.produce"><a class="viewcode-back" href="../../../api/ctapipe.core.Factory.html#ctapipe.core.Factory.produce">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">produce</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Produce an instance of the product class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        kwargs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        instance</span>
+<span class="sd">            Instance of the product class that is the purpose of the factory</span>
+<span class="sd">            to produce.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">factory</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">_instance</span>
+        <span class="k">return</span> <span class="n">instance</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

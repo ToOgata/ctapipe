@@ -1,0 +1,17 @@
+SimpleIntegrator
+================
+
+.. currentmodule:: ctapipe.image.charge_extractors
+
+.. autoclass:: SimpleIntegrator
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SimpleIntegrator.t0
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: t0

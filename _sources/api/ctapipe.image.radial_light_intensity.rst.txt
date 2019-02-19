@@ -1,0 +1,6 @@
+radial_light_intensity
+======================
+
+.. currentmodule:: ctapipe.image
+
+.. autofunction:: radial_light_intensity

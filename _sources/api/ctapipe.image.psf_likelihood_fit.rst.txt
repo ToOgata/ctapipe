@@ -1,0 +1,6 @@
+psf_likelihood_fit
+==================
+
+.. currentmodule:: ctapipe.image
+
+.. autofunction:: psf_likelihood_fit

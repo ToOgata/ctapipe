@@ -1,0 +1,27 @@
+LeakageContainer
+================
+
+.. currentmodule:: ctapipe.io.containers
+
+.. autoclass:: LeakageContainer
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~LeakageContainer.leakage1_intensity
+      ~LeakageContainer.leakage1_pixel
+      ~LeakageContainer.leakage2_intensity
+      ~LeakageContainer.leakage2_pixel
+      ~LeakageContainer.meta
+      ~LeakageContainer.prefix
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: leakage1_intensity
+   .. autoattribute:: leakage1_pixel
+   .. autoattribute:: leakage2_intensity
+   .. autoattribute:: leakage2_pixel
+   .. autoattribute:: meta
+   .. autoattribute:: prefix

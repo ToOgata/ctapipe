@@ -1,0 +1,37 @@
+SST1MCameraContainer
+====================
+
+.. currentmodule:: ctapipe.io.containers
+
+.. autoclass:: SST1MCameraContainer
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SST1MCameraContainer.array_event_type
+      ~SST1MCameraContainer.camera_event_type
+      ~SST1MCameraContainer.digicam_baseline
+      ~SST1MCameraContainer.gps_time
+      ~SST1MCameraContainer.local_camera_clock
+      ~SST1MCameraContainer.meta
+      ~SST1MCameraContainer.pixel_flags
+      ~SST1MCameraContainer.prefix
+      ~SST1MCameraContainer.trigger_input_traces
+      ~SST1MCameraContainer.trigger_output_patch19
+      ~SST1MCameraContainer.trigger_output_patch7
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: array_event_type
+   .. autoattribute:: camera_event_type
+   .. autoattribute:: digicam_baseline
+   .. autoattribute:: gps_time
+   .. autoattribute:: local_camera_clock
+   .. autoattribute:: meta
+   .. autoattribute:: pixel_flags
+   .. autoattribute:: prefix
+   .. autoattribute:: trigger_input_traces
+   .. autoattribute:: trigger_output_patch19
+   .. autoattribute:: trigger_output_patch7

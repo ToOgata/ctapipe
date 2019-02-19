@@ -1,0 +1,29 @@
+WaveformCleanerFactory
+======================
+
+.. currentmodule:: ctapipe.image
+
+.. autoclass:: WaveformCleanerFactory
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~WaveformCleanerFactory.custom_product_help
+      ~WaveformCleanerFactory.default
+      ~WaveformCleanerFactory.product
+      ~WaveformCleanerFactory.subclass_names
+      ~WaveformCleanerFactory.subclasses
+      ~WaveformCleanerFactory.window_shift
+      ~WaveformCleanerFactory.window_width
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: custom_product_help
+   .. autoattribute:: default
+   .. autoattribute:: product
+   .. autoattribute:: subclass_names
+   .. autoattribute:: subclasses
+   .. autoattribute:: window_shift
+   .. autoattribute:: window_width

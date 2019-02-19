@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ctapipe.core.tool &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>ctapipe.core.tool</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ctapipe.core.tool</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">abstractmethod</span>
+
+<span class="kn">from</span> <span class="nn">traitlets</span> <span class="k">import</span> <span class="n">Unicode</span>
+<span class="kn">from</span> <span class="nn">traitlets.config</span> <span class="k">import</span> <span class="n">Application</span>
+
+<span class="kn">from</span> <span class="nn">ctapipe</span> <span class="k">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">version</span>
+<span class="kn">from</span> <span class="nn">.logging</span> <span class="k">import</span> <span class="n">ColoredFormatter</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Provenance</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ToolConfigurationError"><a class="viewcode-back" href="../../../api/ctapipe.core.ToolConfigurationError.html#ctapipe.core.ToolConfigurationError">[docs]</a><span class="k">class</span> <span class="nc">ToolConfigurationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="c1"># Call the base class constructor with the parameters it needs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span></div>
+
+
+<div class="viewcode-block" id="Tool"><a class="viewcode-back" href="../../../api/ctapipe.core.Tool.html#ctapipe.core.Tool">[docs]</a><span class="k">class</span> <span class="nc">Tool</span><span class="p">(</span><span class="n">Application</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A base class for all executable tools (applications) that handles</span>
+<span class="sd">    configuration loading/saving, logging, command-line processing,</span>
+<span class="sd">    and provenance meta-data handling. It is based on</span>
+<span class="sd">    `traitlets.config.Application`. Tools may contain configurable</span>
+<span class="sd">    `ctapipe.core.Component` classes that do work, and their</span>
+<span class="sd">    configuration parameters will propegate automatically to the</span>
+<span class="sd">    `Tool`.</span>
+
+<span class="sd">    Tool developers should create sub-classes, and a name,</span>
+<span class="sd">    description, usage examples should be added by defining the</span>
+<span class="sd">    `name`, `description` and `examples` class attributes as</span>
+<span class="sd">    strings. The `aliases` attribute can be set to cause a lower-level</span>
+<span class="sd">    `Component` parameter to become a high-plevel command-line</span>
+<span class="sd">    parameter (See example below). The `setup()`, `start()`, and</span>
+<span class="sd">    `finish()` methods should be defined in the sub-class.</span>
+
+<span class="sd">    Additionally, any `ctapipe.core.Component` used within the `Tool`</span>
+<span class="sd">    should have their class in a list in the `classes` attribute,</span>
+<span class="sd">    which will automatically add their configuration parameters to the</span>
+<span class="sd">    tool.</span>
+
+<span class="sd">    Once a tool is constructed and the virtual methods defined, the</span>
+<span class="sd">    user can call the `run()` method to setup and start it.</span>
+
+
+<span class="sd">    .. code:: python</span>
+
+<span class="sd">        from ctapipe.core import Tool</span>
+<span class="sd">        from traitlets import (Integer, Float, List, Dict, Unicode)</span>
+
+<span class="sd">        class MyTool(Tool):</span>
+<span class="sd">            name = &quot;mytool&quot;</span>
+<span class="sd">            description = &quot;do some things and stuff&quot;</span>
+<span class="sd">            aliases = Dict({&#39;infile&#39;: &#39;AdvancedComponent.infile&#39;,</span>
+<span class="sd">                            &#39;iterations&#39;: &#39;MyTool.iterations&#39;})</span>
+
+<span class="sd">            # Which classes are registered for configuration</span>
+<span class="sd">            classes = List([MyComponent, AdvancedComponent,</span>
+<span class="sd">                            SecondaryMyComponent])</span>
+
+<span class="sd">            # local configuration parameters</span>
+<span class="sd">            iterations = Integer(5,help=&quot;Number of times to run&quot;,</span>
+<span class="sd">                                 allow_none=False).tag(config=True)</span>
+
+<span class="sd">            def setup_comp(self):</span>
+<span class="sd">                self.comp = MyComponent(self, config=self.config)</span>
+<span class="sd">                self.comp2 = SecondaryMyComponent(self, config=self.config)</span>
+
+<span class="sd">            def setup_advanced(self):</span>
+<span class="sd">                self.advanced = AdvancedComponent(self, config=self.config)</span>
+
+<span class="sd">            def setup(self):</span>
+<span class="sd">                self.setup_comp()</span>
+<span class="sd">                self.setup_advanced()</span>
+
+<span class="sd">            def start(self):</span>
+<span class="sd">                self.log.info(&quot;Performing {} iterations...&quot;\</span>
+<span class="sd">                              .format(self.iterations))</span>
+<span class="sd">                for ii in range(self.iterations):</span>
+<span class="sd">                    self.log.info(&quot;ITERATION {}&quot;.format(ii))</span>
+<span class="sd">                    self.comp.do_thing()</span>
+<span class="sd">                    self.comp2.do_thing()</span>
+<span class="sd">                    sleep(0.5)</span>
+
+<span class="sd">            def finish(self):</span>
+<span class="sd">                self.log.warning(&quot;Shutting down.&quot;)</span>
+
+<span class="sd">        def main():</span>
+<span class="sd">            tool = MyTool()</span>
+<span class="sd">            tool.run()</span>
+
+<span class="sd">        if __name__ == &quot;main&quot;:</span>
+<span class="sd">           main()</span>
+
+
+<span class="sd">    If this `main()` method is registered in `setup.py` under</span>
+<span class="sd">    *entry_points*, it will become a command-line tool (see examples</span>
+<span class="sd">    in the `ctapipe/tools` subdirectory).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">Unicode</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;name of a configuration file with &quot;</span>
+                                     <span class="s2">&quot;parameters to load in addition to &quot;</span>
+                                     <span class="s2">&quot;command-line parameters&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">_log_formatter_cls</span> <span class="o">=</span> <span class="n">ColoredFormatter</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># make sure there are some default aliases in all Tools:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span><span class="p">[</span><span class="s1">&#39;log-level&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Application.log_level&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Tool.config_file&#39;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_format</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%(levelname)8s</span><span class="s1"> [</span><span class="si">%(name)s</span><span class="s1">] &#39;</span>
+                           <span class="s1">&#39;(</span><span class="si">%(module)s</span><span class="s1">/</span><span class="si">%(funcName)s</span><span class="s1">): </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_setup</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Tool.initialize"><a class="viewcode-back" href="../../../api/ctapipe.core.Tool.html#ctapipe.core.Tool.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; handle config and any other low-level setup &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse_command_line</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_file</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Loading config from &#39;</span><span class="si">{self.config_file}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_config_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;ctapipe version </span><span class="si">{self.version_string}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Tool.setup"><a class="viewcode-back" href="../../../api/ctapipe.core.Tool.html#ctapipe.core.Tool.setup">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set up the tool (override in subclass). Here the user should</span>
+<span class="sd">        construct all `Components` and open files, etc.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Tool.start"><a class="viewcode-back" href="../../../api/ctapipe.core.Tool.html#ctapipe.core.Tool.start">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;main body of tool (override in subclass). This is automatially</span>
+<span class="sd">        called after `initialize()` when the `run()` is called.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Tool.finish"><a class="viewcode-back" href="../../../api/ctapipe.core.Tool.html#ctapipe.core.Tool.finish">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;finish up (override in subclass). This is called automatially</span>
+<span class="sd">        after `start()` when `run()` is called.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Goodbye&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Tool.run"><a class="viewcode-back" href="../../../api/ctapipe.core.Tool.html#ctapipe.core.Tool.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run the tool. This automatically calls `initialize()`,</span>
+<span class="sd">        `start()` and `finish()`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        argv: list(str)</span>
+<span class="sd">            command-line arguments, or None to get them</span>
+<span class="sd">            from sys.argv automatically</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Starting: </span><span class="si">{self.name}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;CONFIG: </span><span class="si">{self.config}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">Provenance</span><span class="p">()</span><span class="o">.</span><span class="n">start_activity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">Provenance</span><span class="p">()</span><span class="o">.</span><span class="n">add_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_setup</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Finished: </span><span class="si">{self.name}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">Provenance</span><span class="p">()</span><span class="o">.</span><span class="n">finish_activity</span><span class="p">(</span><span class="n">activity_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ToolConfigurationError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{err}</span><span class="s1">.  Use --help for more info&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Caught unexpected exception: </span><span class="si">{err}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+            <span class="n">Provenance</span><span class="p">()</span><span class="o">.</span><span class="n">finish_activity</span><span class="p">(</span><span class="n">activity_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                         <span class="n">status</span><span class="o">=</span><span class="s1">&#39;error&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;WAS INTERRUPTED BY CTRL-C&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+            <span class="n">Provenance</span><span class="p">()</span><span class="o">.</span><span class="n">finish_activity</span><span class="p">(</span><span class="n">activity_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                         <span class="n">status</span><span class="o">=</span><span class="s1">&#39;interrupted&#39;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">Provenance</span><span class="p">()</span><span class="o">.</span><span class="n">finished_activities</span><span class="p">:</span>
+                <span class="n">output_str</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">activity</span><span class="o">.</span><span class="n">output</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Output: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">output_str</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;PROVENANCE: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">Provenance</span><span class="p">()</span><span class="o">.</span><span class="n">as_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">version_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; a formatted version string with version, release, and git hash&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{version}</span><span class="s2">&quot;</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

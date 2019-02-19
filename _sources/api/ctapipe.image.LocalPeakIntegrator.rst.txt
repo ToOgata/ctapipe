@@ -1,0 +1,7 @@
+LocalPeakIntegrator
+===================
+
+.. currentmodule:: ctapipe.image
+
+.. autoclass:: LocalPeakIntegrator
+   :show-inheritance:

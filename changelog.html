@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Change Log &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="References" href="bibliography.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">References</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Change Log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v0-6-1">v0.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-6-0">v0.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-5-3-unlreleased">v0.5.3 (unlreleased)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-5-2-2017-07-31">v0.5.2 (2017-07-31)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-5-1-2016-07-20">v0.5.1 (2016-07-20)</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Change Log</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/changelog.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="change-log">
+<h1>Change Log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v0-6-1">
+<h2>v0.6.1<a class="headerlink" href="#v0-6-1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Fix broken build (#743) &#64;kosack</li>
+<li>Add example script for a simple event writer (#746) &#64;jjlk</li>
+<li>Fix camera axis alignment in HillasReconstructor (#741) &#64;mackaiver</li>
+<li>Lst reader (#749) &#64;FrancaCassol</li>
+<li>replace deprecated astropy broadcast (#754) &#64;mackaiver</li>
+<li>A few more example notebooks (#757) &#64;kosack</li>
+<li>Add MC xmax info (#759) &#64;mackaiver</li>
+<li>Use Astropy Coordinate Transofmations For Reconstruction (#758) &#64;mackaiver</li>
+<li>Trigger pixel reader (#745) &#64;thomasarmstrong</li>
+<li>Change requested in #742: init Hillas skewness and kurtosis to NaN (#744) &#64;STSpencer</li>
+<li>Fix call to np.linalg.leastsq (#760) &#64;kosack</li>
+<li>Fix/muon bugs (#762) &#64;kosack</li>
+<li>Implement hillas features usen eigh (#748) &#64;MaxNoe</li>
+<li>Use HillasParametersContainer only (#763) &#64;MaxNoe</li>
+<li>Regression features in <code class="xref py py-obj docutils literal notranslate"><span class="pre">RegressorClassifierBase</span></code> (#764) &#64;vuillaut</li>
+<li>Adding an example notebook no how to convert hex geometry to square and back (#767) &#64;vuillaut</li>
+<li>Wrong angle in ArrayDisplay. changed phi to psi. (#771) &#64;thomasgas</li>
+<li>Unstructured interpolator (#770) &#64;ParsonsRD</li>
+<li>Lst reader (#776) &#64;FrancaCassol</li>
+<li>Fixing core reconstruction (#777) &#64;kpfrang</li>
+<li>Leakage (#783) &#64;MaxNoe</li>
+<li>Revert “Fixing core reconstruction” (#789) &#64;kosack</li>
+<li>Fixing the toy image generator (#790) &#64;MaxNoe</li>
+<li>Fix bad builds by changing channel name (missing pyqt package) (#793) &#64;kosack</li>
+<li>Implement concentration image features (#791) &#64;MaxNoe</li>
+<li>updated main documentation page (#792) &#64;kosack</li>
+<li>Impact intersection (#778) &#64;mackaiver</li>
+<li>add test for sliced geometries for hillas calculation (#781) &#64;mackaiver</li>
+<li>Simple HESS adaptations (#794) &#64;ParsonsRD</li>
+<li>added a config file for github release-drafter plugin (#795) &#64;kosack</li>
+<li>Array plotting (#784) &#64;thomasgas</li>
+<li>Minor changes: mostly deprecationwarning fixes (#787) &#64;mireianievas</li>
+<li>Codacy code style improvements (#796) &#64;dneise</li>
+<li>Add unit to h_max in HillasReconstructor (#797) &#64;jjlk</li>
+<li>speed up unit tests that use test_event fixture (#798) &#64;kosack</li>
+<li>Update Timing Parameters (#799) &#64;LukasNickel</li>
+</ul>
+</div>
+<div class="section" id="v0-6-0">
+<h2>v0.6.0<a class="headerlink" href="#v0-6-0" title="Permalink to this headline">¶</a></h2>
+<p>This is an interim release, after some major refactoring, and before we add
+the automatic gain selection and refactored container classes. It’s not
+intended yet for production.</p>
+<p>Some Major changes since last release:</p>
+<ul class="simple">
+<li>new <code class="xref py py-obj docutils literal notranslate"><span class="pre">EventSource</span></code> class hierarchy for reading event data, which now supports simulation and testbench data from multiple camera prototypes (notably CHEC, SST-1M, NectarCam)</li>
+<li>new <code class="xref py py-obj docutils literal notranslate"><span class="pre">EventSeeker</span></code> class for (inefficient) random event access.</li>
+<li>a much improved <code class="xref py py-obj docutils literal notranslate"><span class="pre">Factory</span></code> class</li>
+<li>re-organized event data structure (still evolving) - all scripts not in ctapipe must be changed to work with the new data items that were re-named  (a migration guide will be given in the 0.7 release)</li>
+<li>better HDF5 table output, supporting merging multiple <code class="xref py py-obj docutils literal notranslate"><span class="pre">Containers</span></code> into a single output table</li>
+<li>improvements to Muon analysis, and the muon example script</li>
+<li>improvements to the calibration classes</li>
+<li>big improvements to the Instrument classes</li>
+<li>lots of cleanups and bug fixes</li>
+<li>much more…</li>
+</ul>
+</div>
+<div class="section" id="v0-5-3-unlreleased">
+<h2>v0.5.3 (unlreleased)<a class="headerlink" href="#v0-5-3-unlreleased" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>Major speed improvements to calibration code, particuarly</dt>
+<dd><code class="xref py py-obj docutils literal notranslate"><span class="pre">NeighborPeakIntegrator</span></code> (Jason Watson, #490), which now uses some
+compiled c-code for speed.</dd>
+</dl>
+</li>
+<li><code class="xref py py-obj docutils literal notranslate"><span class="pre">GeometryConverter</span></code> now works for all cameras (Tino Michael, #)</li>
+<li>Plotting improvements when overlays are used (Max Noe, #489)</li>
+<li>Fixes to coordinate <code class="xref py py-obj docutils literal notranslate"><span class="pre">PlanarRepresentation</span></code> (Max Noe, #506)</li>
+<li>HDF5 output for charge resolution calculation (Jason Watons, #488)</li>
+<li>Stastical errors added to sensitivity calculation (Tino Michel, #508)</li>
+<li>Error estimator for direction and h_max fits in
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">HillasReconstructor</span></code> (Tino Michael, #509, #510)</li>
+</ul>
+</div>
+<div class="section" id="v0-5-2-2017-07-31">
+<h2>v0.5.2 (2017-07-31)<a class="headerlink" href="#v0-5-2-2017-07-31" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>improvements to <code class="xref py py-obj docutils literal notranslate"><span class="pre">core.Container</span></code> (Max Noe)</li>
+<li><code class="xref py py-obj docutils literal notranslate"><span class="pre">TableWriter</span></code> correctly handles units and metadata</li>
+<li><a class="reference internal" href="ctapipe_api/instrument/index.html#module-ctapipe.instrument" title="ctapipe.instrument"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctapipe.instrument</span></code></a> now has much more rich functionality
+(SubarrayDescription, TelescopeDescription, OpticsDescription
+classes added)</li>
+<li>no more need to construct <code class="xref py py-obj docutils literal notranslate"><span class="pre">CameraGeometry</span></code> manually, they are
+created in the <code class="xref py py-obj docutils literal notranslate"><span class="pre">hessio_event_source</span></code>, all new code should use
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">event.inst.subarray</span></code>. The old inst.tel_pos, inst.optics_foclen,
+etc, will be phased out in the next point release (but still exist
+in this release) (K. Kosack)</li>
+<li><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctapipe-dump-instrument</span></code> script added</li>
+<li>improvements to <code class="xref py py-obj docutils literal notranslate"><span class="pre">Regressor</span></code> and Classifier code (Tino Michael)</li>
+<li>provenance system includes actor roles</li>
+<li>fixes to likelihood tests (Dan Parsons)</li>
+</ul>
+</div>
+<div class="section" id="v0-5-1-2016-07-20">
+<h2>v0.5.1 (2016-07-20)<a class="headerlink" href="#v0-5-1-2016-07-20" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>TQDM and iminuit are now accepted dependencies</li>
+<li>Implementation of ImPACT reconstruction and <code class="xref py py-obj docutils literal notranslate"><span class="pre">TableInterpolator</span></code>
+class (Dan Parsons)</li>
+<li>improved handling of atmosphere profiles</li>
+<li>Implementation of Muon detection and reconstruction algorithms
+(Alison Mitchell)</li>
+<li>unified camera and telescope names</li>
+<li>better dataset handling (<code class="xref py py-obj docutils literal notranslate"><span class="pre">ctapipe.utils.datasets</span></code>), and now
+automatically find datasets and tables in <code class="xref py py-obj docutils literal notranslate"><span class="pre">ctapipe-extra</span></code> or in any
+directory listed in the user-defined <code class="xref py py-obj docutils literal notranslate"><span class="pre">$CTAPIPE_SVC_PATH</span></code> path.</li>
+<li>TableWriter class (HDF5TableWriter) for writing out any
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">core.Container</span></code> to an HDF5 table via <code class="xref py py-obj docutils literal notranslate"><span class="pre">pytables</span></code> (Karl Kosack)</li>
+<li>Improvements to <code class="xref py py-obj docutils literal notranslate"><span class="pre">flow</span></code> framework (Jean Jacquemier)</li>
+<li>Travis CI now builds automatically for multiply python versions and
+uploads lates documentation</li>
+<li>use Lanscape.io for code quality</li>
+<li>code for calculating sensitivity curves using event-weighting method
+(Tino Michael)</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="bibliography.html" class="btn btn-neutral" title="References" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

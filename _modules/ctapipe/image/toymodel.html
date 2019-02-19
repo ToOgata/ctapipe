@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ctapipe.image.toymodel &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>ctapipe.image.toymodel</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ctapipe.image.toymodel</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities to generate toymodel (fake) reconstruction inputs for testing</span>
+<span class="sd">purposes.</span>
+
+<span class="sd">Examples:</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">    &gt;&gt;&gt; from instrument import CameraGeometry</span>
+<span class="sd">    &gt;&gt;&gt; geom = CameraGeometry.make_rectangular(20,20)</span>
+<span class="sd">    &gt;&gt;&gt; showermodel = generate_2d_shower_model(centroid=[0.25, 0.0],</span>
+<span class="sd">    length=0.1,width=0.02, psi=&#39;40d&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; image, signal, noise = make_toymodel_shower_image(geom, showermodel.pdf)</span>
+<span class="sd">    &gt;&gt;&gt; print(image.shape)</span>
+<span class="sd">    (400,)</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">multivariate_normal</span>
+<span class="kn">from</span> <span class="nn">ctapipe.utils</span> <span class="k">import</span> <span class="n">linalg</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;generate_2d_shower_model&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;make_toymodel_shower_image&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="generate_2d_shower_model"><a class="viewcode-back" href="../../../api/ctapipe.image.toymodel.generate_2d_shower_model.html#ctapipe.image.toymodel.generate_2d_shower_model">[docs]</a><span class="k">def</span> <span class="nf">generate_2d_shower_model</span><span class="p">(</span><span class="n">centroid</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">psi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a statistical model (2D gaussian) for a shower image in a</span>
+<span class="sd">    camera. The model&#39;s PDF (`model.pdf`) can be passed to</span>
+<span class="sd">    `make_toymodel_shower_image`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    centroid : (float,float)</span>
+<span class="sd">        position of the centroid of the shower in camera coordinates</span>
+<span class="sd">    width : float</span>
+<span class="sd">        width of shower (minor axis)</span>
+<span class="sd">    length : float</span>
+<span class="sd">        length of shower (major axis)</span>
+<span class="sd">    psi : convertable to `astropy.coordinates.Angle`</span>
+<span class="sd">        rotation angle about the centroid (0=x-axis)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    a `scipy.stats` object</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">aligned_covariance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">length</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">**</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="c1"># rotate by psi angle: C&#39; = R C R+</span>
+    <span class="n">rotation</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">rotation_matrix_2d</span><span class="p">(</span><span class="n">psi</span><span class="p">)</span>
+    <span class="n">rotated_covariance</span> <span class="o">=</span> <span class="n">rotation</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">aligned_covariance</span><span class="p">)</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rotation</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">multivariate_normal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">centroid</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">rotated_covariance</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="make_toymodel_shower_image"><a class="viewcode-back" href="../../../api/ctapipe.image.toymodel.make_toymodel_shower_image.html#ctapipe.image.toymodel.make_toymodel_shower_image">[docs]</a><span class="k">def</span> <span class="nf">make_toymodel_shower_image</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">showerpdf</span><span class="p">,</span> <span class="n">intensity</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">nsb_level_pe</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generates a pedestal-subtracted shower image from a statistical</span>
+<span class="sd">    shower model (as generated by `shower_model`). The resulting image</span>
+<span class="sd">    will be in the same format as the given</span>
+<span class="sd">    `~ctapipe.image.camera.CameraGeometry`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    geom : `ctapipe.instrument.CameraGeometry`</span>
+<span class="sd">        camera geometry object</span>
+<span class="sd">    showerpdf : func</span>
+<span class="sd">        PDF function for the shower to generate in the camera, e.g. from a</span>
+<span class="sd">    intensity : int</span>
+<span class="sd">        factor to multiply the model by to get photo-electrons</span>
+<span class="sd">    nsb_level_pe : type</span>
+<span class="sd">        level of NSB/pedestal in photo-electrons</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    an array of image intensities corresponding to the given `CameraGeometry`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">pix_x</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="p">,))</span>
+    <span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">pix_x</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">pix_y</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="n">model_counts</span> <span class="o">=</span> <span class="n">showerpdf</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="o">*</span> <span class="n">intensity</span> <span class="o">*</span> <span class="n">geom</span><span class="o">.</span><span class="n">pix_area</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">model_counts</span><span class="p">)</span>
+    <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">nsb_level_pe</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">signal</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="p">(</span><span class="n">signal</span> <span class="o">+</span> <span class="n">noise</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">image</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">noise</span></div>
+
+
+<span class="k">def</span> <span class="nf">gaussian</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span><span class="o">**</span><span class="mf">2.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">sigma</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">generate_muon_model</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">centre_x</span><span class="p">,</span> <span class="n">centre_y</span><span class="p">):</span>
+    <span class="n">r_pix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">xy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">centre_x</span><span class="p">)</span><span class="o">**</span><span class="mf">2.</span> <span class="o">+</span> <span class="p">(</span><span class="n">xy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">centre_y</span><span class="p">)</span><span class="o">**</span><span class="mf">2.</span><span class="p">)</span>
+    <span class="n">Im_pix</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">r_pix</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Im_pix</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

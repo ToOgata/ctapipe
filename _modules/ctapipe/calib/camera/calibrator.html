@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ctapipe.calib.camera.calibrator &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>ctapipe.calib.camera.calibrator</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ctapipe.calib.camera.calibrator</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Conveniance calibrator to handle the full camera calibration.</span>
+
+<span class="sd">This calibrator will apply the calibrations found in r1.py, dl0.py and dl1.py.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">ctapipe.core</span> <span class="k">import</span> <span class="n">Component</span>
+<span class="kn">from</span> <span class="nn">ctapipe.calib.camera</span> <span class="k">import</span> <span class="n">CameraR1CalibratorFactory</span><span class="p">,</span> <span class="n">CameraDL0Reducer</span><span class="p">,</span> \
+    <span class="n">CameraDL1Calibrator</span>
+<span class="kn">from</span> <span class="nn">ctapipe.image</span> <span class="k">import</span> <span class="n">ChargeExtractorFactory</span><span class="p">,</span> <span class="n">WaveformCleanerFactory</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CameraCalibrator&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="CameraCalibrator"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.calibrator.CameraCalibrator.html#ctapipe.calib.CameraCalibrator">[docs]</a><span class="k">class</span> <span class="nc">CameraCalibrator</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Conveniance calibrator to handle the full camera calibration.</span>
+
+<span class="sd">    This calibrator will apply the calibrations found in r1.py, dl0.py and</span>
+<span class="sd">    dl1.py.</span>
+
+<span class="sd">    The following traitlet alias configuration is suggestion for configuring</span>
+<span class="sd">    the calibration inside a `ctapipe.core.Tool`:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        aliases = Dict(dict(</span>
+<span class="sd">        ped=&#39;CameraR1CalibratorFactory.pedestal_path&#39;,</span>
+<span class="sd">        tf=&#39;CameraR1CalibratorFactory.tf_path&#39;,</span>
+<span class="sd">        pe=&#39;CameraR1CalibratorFactory.adc2pe_path&#39;,</span>
+<span class="sd">        extractor=&#39;ChargeExtractorFactory.extractor&#39;,</span>
+<span class="sd">        extractor_t0=&#39;ChargeExtractorFactory.t0&#39;,</span>
+<span class="sd">        window_width=&#39;ChargeExtractorFactory.window_width&#39;,</span>
+<span class="sd">        window_shift=&#39;ChargeExtractorFactory.window_shift&#39;,</span>
+<span class="sd">        sig_amp_cut_HG=&#39;ChargeExtractorFactory.sig_amp_cut_HG&#39;,</span>
+<span class="sd">        sig_amp_cut_LG=&#39;ChargeExtractorFactory.sig_amp_cut_LG&#39;,</span>
+<span class="sd">        lwt=&#39;ChargeExtractorFactory.lwt&#39;,</span>
+<span class="sd">        clip_amplitude=&#39;CameraDL1Calibrator.clip_amplitude&#39;,</span>
+<span class="sd">        radius=&#39;CameraDL1Calibrator.radius&#39;,</span>
+<span class="sd">        cleaner=&#39;WaveformCleanerFactory.cleaner&#39;,</span>
+<span class="sd">        cleaner_t0=&#39;WaveformCleanerFactory.t0&#39;,</span>
+<span class="sd">        ))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">r1_product</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">extractor_product</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">cleaner_product</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">eventsource</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : traitlets.loader.Config</span>
+<span class="sd">            Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">            Used to set traitlet values.</span>
+<span class="sd">            Set to None if no configuration to pass.</span>
+<span class="sd">        tool : ctapipe.core.Tool or None</span>
+<span class="sd">            Tool executable that is calling this component.</span>
+<span class="sd">            Passes the correct logger to the component.</span>
+<span class="sd">            Set to None if no Tool to pass.</span>
+<span class="sd">        r1_product : str</span>
+<span class="sd">            The R1 calibrator to use. Manually overrides the Factory.</span>
+<span class="sd">        extractor_product : str</span>
+<span class="sd">            The ChargeExtractor to use. Manually overrides the Factory.</span>
+<span class="sd">        cleaner_product : str</span>
+<span class="sd">            The WaveformCleaner to use. Manually overrides the Factory.</span>
+<span class="sd">        eventsource : ctapipe.io.eventsource.EventSource</span>
+<span class="sd">            EventSource that is being used to read the events. The EventSource</span>
+<span class="sd">            contains information (such as metadata or inst) which indicates</span>
+<span class="sd">            the appropriate R1Calibrator to use.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">kwargs_</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">extractor_product</span><span class="p">:</span>
+            <span class="n">kwargs_</span><span class="p">[</span><span class="s1">&#39;product&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extractor_product</span>
+        <span class="n">extractor</span> <span class="o">=</span> <span class="n">ChargeExtractorFactory</span><span class="o">.</span><span class="n">produce</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs_</span>
+        <span class="p">)</span>
+
+        <span class="n">kwargs_</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">cleaner_product</span><span class="p">:</span>
+            <span class="n">kwargs_</span><span class="p">[</span><span class="s1">&#39;product&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cleaner_product</span>
+        <span class="n">cleaner</span> <span class="o">=</span> <span class="n">WaveformCleanerFactory</span><span class="o">.</span><span class="n">produce</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs_</span>
+        <span class="p">)</span>
+
+        <span class="n">kwargs_</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">r1_product</span><span class="p">:</span>
+            <span class="n">kwargs_</span><span class="p">[</span><span class="s1">&#39;product&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r1_product</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r1</span> <span class="o">=</span> <span class="n">CameraR1CalibratorFactory</span><span class="o">.</span><span class="n">produce</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span>
+            <span class="n">eventsource</span><span class="o">=</span><span class="n">eventsource</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs_</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dl0</span> <span class="o">=</span> <span class="n">CameraDL0Reducer</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dl1</span> <span class="o">=</span> <span class="n">CameraDL1Calibrator</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span>
+                                       <span class="n">extractor</span><span class="o">=</span><span class="n">extractor</span><span class="p">,</span>
+                                       <span class="n">cleaner</span><span class="o">=</span><span class="n">cleaner</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CameraCalibrator.calibrate"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.calibrator.CameraCalibrator.html#ctapipe.calib.CameraCalibrator.calibrate">[docs]</a>    <span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform the full camera calibration from R0 to DL1. Any calibration</span>
+<span class="sd">        relating to data levels before the data level the file is read into</span>
+<span class="sd">        will be skipped.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : container</span>
+<span class="sd">            A `ctapipe` event container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r1</span><span class="o">.</span><span class="n">calibrate</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dl0</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dl1</span><span class="o">.</span><span class="n">calibrate</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

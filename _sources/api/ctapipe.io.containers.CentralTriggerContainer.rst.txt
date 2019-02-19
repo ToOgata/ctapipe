@@ -1,0 +1,23 @@
+CentralTriggerContainer
+=======================
+
+.. currentmodule:: ctapipe.io.containers
+
+.. autoclass:: CentralTriggerContainer
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~CentralTriggerContainer.gps_time
+      ~CentralTriggerContainer.meta
+      ~CentralTriggerContainer.prefix
+      ~CentralTriggerContainer.tels_with_trigger
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: gps_time
+   .. autoattribute:: meta
+   .. autoattribute:: prefix
+   .. autoattribute:: tels_with_trigger

@@ -1,0 +1,439 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ctapipe.image.waveform_cleaning &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>ctapipe.image.waveform_cleaning</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ctapipe.image.waveform_cleaning</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Waveform cleaning algorithms (smoothing, filtering, baseline subtraction)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">abstractmethod</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">general_gaussian</span>
+<span class="kn">from</span> <span class="nn">traitlets</span> <span class="k">import</span> <span class="n">Int</span>
+
+<span class="kn">from</span> <span class="nn">ctapipe.core</span> <span class="k">import</span> <span class="n">Component</span><span class="p">,</span> <span class="n">Factory</span>
+<span class="kn">from</span> <span class="nn">ctapipe.image.charge_extractors</span> <span class="k">import</span> <span class="p">(</span><span class="n">AverageWfPeakIntegrator</span><span class="p">,</span>
+                                             <span class="n">LocalPeakIntegrator</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;WaveformCleanerFactory&#39;</span><span class="p">,</span> <span class="s1">&#39;CHECMWaveformCleanerAverage&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;CHECMWaveformCleanerLocal&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;NullWaveformCleaner&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">WaveformCleaner</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base component to handle the cleaning of the waveforms in an image.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : traitlets.loader.Config</span>
+<span class="sd">        Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">        Used to set traitlet values.</span>
+<span class="sd">        Set to None if no configuration to pass.</span>
+<span class="sd">    tool : ctapipe.core.Tool or None</span>
+<span class="sd">        Tool executable that is calling this component.</span>
+<span class="sd">        Passes the correct logger to the component.</span>
+<span class="sd">        Set to None if no Tool to pass.</span>
+<span class="sd">    kwargs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the cleaning method to the waveforms</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        waveforms : ndarray</span>
+<span class="sd">            Waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cleaned : ndarray</span>
+<span class="sd">            Cleaned waveforms stored in a numpy array of shape</span>
+<span class="sd">            (n_chan, n_pix, n_samples).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="NullWaveformCleaner"><a class="viewcode-back" href="../../../api/ctapipe.image.waveform_cleaning.NullWaveformCleaner.html#ctapipe.image.NullWaveformCleaner">[docs]</a><span class="k">class</span> <span class="nc">NullWaveformCleaner</span><span class="p">(</span><span class="n">WaveformCleaner</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dummy waveform cleaner that simply returns its input</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NullWaveformCleaner.apply"><a class="viewcode-back" href="../../../api/ctapipe.image.waveform_cleaning.NullWaveformCleaner.html#ctapipe.image.NullWaveformCleaner.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">waveforms</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">CHECMWaveformCleaner</span><span class="p">(</span><span class="n">WaveformCleaner</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Waveform cleaner used by CHEC-M.</span>
+
+<span class="sd">    This cleaner performs 2 basline subtractions: a simple subtraction</span>
+<span class="sd">    using the average of the first 32 samples in the waveforms, then a </span>
+<span class="sd">    convolved baseline subtraction to remove and low frequency drifts in </span>
+<span class="sd">    the baseline.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : traitlets.loader.Config</span>
+<span class="sd">        Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">        Used to set traitlet values.</span>
+<span class="sd">        Set to None if no configuration to pass.</span>
+<span class="sd">    tool : ctapipe.core.Tool</span>
+<span class="sd">        Tool executable that is calling this component.</span>
+<span class="sd">        Passes the correct logger to the component.</span>
+<span class="sd">        Set to None if no Tool to pass.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">window_width</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Define the width of the pulse &#39;</span>
+                                <span class="s1">&#39;window&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">window_shift</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Define the shift of the pulse window from the &#39;</span>
+                               <span class="s1">&#39;peakpos (peakpos - shift).&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Cleaning steps for plotting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stage_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0: raw&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;1: baseline_sub&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;2: no_pulse&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;3: smooth_baseline&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;4: smooth_wf&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;5: cleaned&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">general_gaussian</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">sig</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">extractor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_extractor</span><span class="p">()</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the extractor to be used to define a window used to mask out the</span>
+<span class="sd">        pulse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        `ChargeExtractor`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveforms</span><span class="p">):</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Subtract initial baseline</span>
+        <span class="n">baseline_sub</span> <span class="o">=</span> <span class="n">samples</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">32</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="c1"># Obtain waveform with pulse masked</span>
+        <span class="n">baseline_sub_b</span> <span class="o">=</span> <span class="n">baseline_sub</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+        <span class="n">window</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractor</span><span class="o">.</span><span class="n">get_window_from_waveforms</span><span class="p">(</span><span class="n">waveforms</span><span class="p">)</span>
+        <span class="n">windowed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">baseline_sub_b</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">no_pulse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="n">windowed</span><span class="p">,</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Get smooth baseline (no pulse)</span>
+        <span class="n">smooth_flat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">no_pulse</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="s2">&quot;same&quot;</span><span class="p">)</span>
+        <span class="n">smooth_baseline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">smooth_flat</span><span class="p">,</span> <span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">no_pulse_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">no_pulse</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">smooth_baseline_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">smooth_baseline</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+            <span class="n">smooth_baseline</span> <span class="o">*=</span> <span class="p">(</span><span class="n">no_pulse_std</span> <span class="o">/</span> <span class="n">smooth_baseline_std</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">smooth_baseline</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">smooth_baseline</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Get smooth waveform</span>
+        <span class="n">smooth_wf</span> <span class="o">=</span> <span class="n">baseline_sub</span>  <span class="c1"># self.wf_smoother.apply(baseline_sub)</span>
+
+        <span class="c1"># Subtract smooth baseline</span>
+        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">smooth_wf</span> <span class="o">-</span> <span class="n">smooth_baseline</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="s1">&#39;0: raw&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="s1">&#39;1: baseline_sub&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">baseline_sub</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="s1">&#39;window&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="s1">&#39;2: no_pulse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">no_pulse</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="s1">&#39;3: smooth_baseline&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">smooth_baseline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="s1">&#39;4: smooth_wf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">smooth_wf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="s1">&#39;5: cleaned&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cleaned</span>
+
+        <span class="k">return</span> <span class="n">cleaned</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+
+
+<div class="viewcode-block" id="CHECMWaveformCleanerAverage"><a class="viewcode-back" href="../../../api/ctapipe.image.waveform_cleaning.CHECMWaveformCleanerAverage.html#ctapipe.image.CHECMWaveformCleanerAverage">[docs]</a><span class="k">class</span> <span class="nc">CHECMWaveformCleanerAverage</span><span class="p">(</span><span class="n">CHECMWaveformCleaner</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Waveform cleaner used by CHEC-M.</span>
+
+<span class="sd">    This cleaner performs 2 basline subtractions: a simple subtraction</span>
+<span class="sd">    using the average of the first 32 samples in the waveforms, then a </span>
+<span class="sd">    convolved baseline subtraction to remove and low frequency drifts in </span>
+<span class="sd">    the baseline.</span>
+
+<span class="sd">    This particular cleaner obtains the peak position using an </span>
+<span class="sd">    `AverageWfPeakIntegrator`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : traitlets.loader.Config</span>
+<span class="sd">        Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">        Used to set traitlet values.</span>
+<span class="sd">        Set to None if no configuration to pass.</span>
+<span class="sd">    tool : ctapipe.core.Tool</span>
+<span class="sd">        Tool executable that is calling this component.</span>
+<span class="sd">        Passes the correct logger to the component.</span>
+<span class="sd">        Set to None if no Tool to pass.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CHECMWaveformCleanerAverage.get_extractor"><a class="viewcode-back" href="../../../api/ctapipe.image.waveform_cleaning.CHECMWaveformCleanerAverage.html#ctapipe.image.CHECMWaveformCleanerAverage.get_extractor">[docs]</a>    <span class="k">def</span> <span class="nf">get_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">AverageWfPeakIntegrator</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
+                                       <span class="n">window_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">window_width</span><span class="p">,</span>
+                                       <span class="n">window_shift</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">window_shift</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CHECMWaveformCleanerLocal"><a class="viewcode-back" href="../../../api/ctapipe.image.waveform_cleaning.CHECMWaveformCleanerLocal.html#ctapipe.image.CHECMWaveformCleanerLocal">[docs]</a><span class="k">class</span> <span class="nc">CHECMWaveformCleanerLocal</span><span class="p">(</span><span class="n">CHECMWaveformCleaner</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Waveform cleaner used by CHEC-M.</span>
+
+<span class="sd">    This cleaner performs 2 basline subtractions: a simple subtraction</span>
+<span class="sd">    using the average of the first 32 samples in the waveforms, then a </span>
+<span class="sd">    convolved baseline subtraction to remove and low frequency drifts in </span>
+<span class="sd">    the baseline.</span>
+
+<span class="sd">    This particular cleaner obtains the peak position using an </span>
+<span class="sd">    `LocalPeakIntegrator`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : traitlets.loader.Config</span>
+<span class="sd">        Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">        Used to set traitlet values.</span>
+<span class="sd">        Set to None if no configuration to pass.</span>
+<span class="sd">    tool : ctapipe.core.Tool</span>
+<span class="sd">        Tool executable that is calling this component.</span>
+<span class="sd">        Passes the correct logger to the component.</span>
+<span class="sd">        Set to None if no Tool to pass.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CHECMWaveformCleanerLocal.get_extractor"><a class="viewcode-back" href="../../../api/ctapipe.image.waveform_cleaning.CHECMWaveformCleanerLocal.html#ctapipe.image.CHECMWaveformCleanerLocal.get_extractor">[docs]</a>    <span class="k">def</span> <span class="nf">get_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">LocalPeakIntegrator</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
+                                   <span class="n">window_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">window_width</span><span class="p">,</span>
+                                   <span class="n">window_shift</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">window_shift</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="WaveformCleanerFactory"><a class="viewcode-back" href="../../../api/ctapipe.image.waveform_cleaning.WaveformCleanerFactory.html#ctapipe.image.WaveformCleanerFactory">[docs]</a><span class="k">class</span> <span class="nc">WaveformCleanerFactory</span><span class="p">(</span><span class="n">Factory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory to obtain a WaveformCleaner.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">WaveformCleaner</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="s1">&#39;NullWaveformCleaner&#39;</span>
+    <span class="n">custom_product_help</span> <span class="o">=</span> <span class="s1">&#39;Waveform cleaning method to use.&#39;</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

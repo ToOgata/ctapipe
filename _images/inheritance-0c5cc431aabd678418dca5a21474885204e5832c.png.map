@@ -1,0 +1,6 @@
+<map id="inheritanceca9421b6ce" name="inheritanceca9421b6ce">
+<area shape="rect" id="node2" title="This is the base class from which all ring fitters should inherit from" alt="" coords="503,44,571,65"/>
+<area shape="rect" id="node3" title="Base class of all Components (sometimes called" alt="" coords="386,44,465,65"/>
+<area shape="rect" id="node6" title="The base class for all classes that have descriptors." alt="" coords="13,44,111,65"/>
+<area shape="rect" id="node7" title="Object for calculating the expected 2D shape of muon image for a given" alt="" coords="4,4,119,25"/>
+</map>

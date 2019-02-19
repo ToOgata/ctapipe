@@ -1,0 +1,17 @@
+FullIntegrator
+==============
+
+.. currentmodule:: ctapipe.image.charge_extractors
+
+.. autoclass:: FullIntegrator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~FullIntegrator.get_peakpos
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_peakpos

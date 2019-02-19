@@ -1,0 +1,1014 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ctapipe.io.containers &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>ctapipe.io.containers</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ctapipe.io.containers</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Container structures for data that should be read or written to disk</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="k">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy.time</span> <span class="k">import</span> <span class="n">Time</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">nan</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">Container</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">Map</span>
+<span class="kn">from</span> <span class="nn">..instrument</span> <span class="k">import</span> <span class="n">SubarrayDescription</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;InstrumentContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;R0Container&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;R0CameraContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;R1Container&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;R1CameraContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DL0Container&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DL0CameraContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DL1Container&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DL1CameraContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;TargetIOContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;TargetIOCameraContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;SST1MContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;SST1MCameraContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;LSTContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;LSTCameraContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NectarCAMContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NectarCAMCameraContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;MCEventContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;MCHeaderContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;MCCameraEventContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CameraCalibrationContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CentralTriggerContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ReconstructedContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ReconstructedShowerContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ReconstructedEnergyContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ParticleClassificationContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DataContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;TargetIODataContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;SST1MDataContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;HillasParametersContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;LeakageContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ConcentrationContainer&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;TimingParametersContainer&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+
+<div class="viewcode-block" id="SST1MCameraContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.SST1MCameraContainer.html#ctapipe.io.containers.SST1MCameraContainer">[docs]</a><span class="k">class</span> <span class="nc">SST1MCameraContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="n">pixel_flags</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;numpy array containing pixel flags&#39;</span><span class="p">)</span>
+    <span class="n">digicam_baseline</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Baseline computed by DigiCam&#39;</span><span class="p">)</span>
+    <span class="n">local_camera_clock</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;camera timestamp&quot;</span><span class="p">)</span>
+    <span class="n">gps_time</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;gps timestamp&quot;</span><span class="p">)</span>
+    <span class="n">camera_event_type</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;camera event type&quot;</span><span class="p">)</span>
+    <span class="n">array_event_type</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;array event type&quot;</span><span class="p">)</span>
+    <span class="n">trigger_input_traces</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;trigger patch trace (n_patches)&quot;</span><span class="p">)</span>
+    <span class="n">trigger_output_patch7</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;trigger 7 patch cluster trace (n_clusters)&quot;</span><span class="p">)</span>
+    <span class="n">trigger_output_patch19</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;trigger 19 patch cluster trace (n_clusters)&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SST1MContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.SST1MContainer.html#ctapipe.io.containers.SST1MContainer">[docs]</a><span class="k">class</span> <span class="nc">SST1MContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="n">tels_with_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;list of telescopes with data&quot;</span><span class="p">)</span>
+    <span class="n">tel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">Map</span><span class="p">(</span><span class="n">SST1MCameraContainer</span><span class="p">),</span>
+        <span class="s2">&quot;map of tel_id to SST1MCameraContainer&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># todo: change some of these Maps to be just 3D NDarrays?</span>
+
+
+<div class="viewcode-block" id="InstrumentContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.InstrumentContainer.html#ctapipe.io.containers.InstrumentContainer">[docs]</a><span class="k">class</span> <span class="nc">InstrumentContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Storage of header info that does not change with event. This is a</span>
+<span class="sd">    temporary hack until the Instrument module and database is fully</span>
+<span class="sd">    implemented.  Eventually static information like this will not be</span>
+<span class="sd">    part of the data stream, but be loaded and accessed from</span>
+<span class="sd">    functions.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">subarray</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">SubarrayDescription</span><span class="p">(</span><span class="s2">&quot;MonteCarloArray&quot;</span><span class="p">),</span>
+                     <span class="s2">&quot;SubarrayDescription from the instrument module&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DL1CameraContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.DL1CameraContainer.html#ctapipe.io.containers.DL1CameraContainer">[docs]</a><span class="k">class</span> <span class="nc">DL1CameraContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Storage of output of camera calibration e.g the final calibrated</span>
+<span class="sd">    image in intensity units and other per-event calculated</span>
+<span class="sd">    calibration information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;np array of camera image, after waveform integration (N_pix)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">gain_channel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;boolean numpy array of which gain channel was &quot;</span>
+                               <span class="s2">&quot;used for each pixel in the image &quot;</span><span class="p">)</span>
+    <span class="n">extracted_samples</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;numpy array of bools indicating which samples were included in the &quot;</span>
+        <span class="s2">&quot;charge extraction as a result of the charge extractor chosen. &quot;</span>
+        <span class="s2">&quot;Shape=(nchan, npix, nsamples).&quot;</span>
+    <span class="p">)</span>
+    <span class="n">peakpos</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;numpy array containing position of the peak as determined by &quot;</span>
+        <span class="s2">&quot;the peak-finding algorithm for each pixel&quot;</span>
+    <span class="p">)</span>
+    <span class="n">cleaned</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;numpy array containing the waveform after cleaning&quot;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CameraCalibrationContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.CameraCalibrationContainer.html#ctapipe.io.containers.CameraCalibrationContainer">[docs]</a><span class="k">class</span> <span class="nc">CameraCalibrationContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage of externally calculated calibration parameters (not per-event)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dc_to_pe</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;DC/PE calibration arrays from MC file&quot;</span><span class="p">)</span>
+    <span class="n">pedestal</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;pedestal calibration arrays from MC file&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DL1Container"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.DL1Container.html#ctapipe.io.containers.DL1Container">[docs]</a><span class="k">class</span> <span class="nc">DL1Container</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; DL1 Calibrated Camera Images and associated data&quot;&quot;&quot;</span>
+    <span class="n">tel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">Map</span><span class="p">(</span><span class="n">DL1CameraContainer</span><span class="p">),</span> <span class="s2">&quot;map of tel_id to DL1CameraContainer&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="R0CameraContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.R0CameraContainer.html#ctapipe.io.containers.R0CameraContainer">[docs]</a><span class="k">class</span> <span class="nc">R0CameraContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage of raw data from a single telescope</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">trigger_time</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Telescope trigger time, start of waveform &quot;</span>
+                               <span class="s2">&quot;readout, None for MCs&quot;</span><span class="p">)</span>
+    <span class="n">trigger_type</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mo">0o0</span><span class="p">,</span> <span class="s2">&quot;camera&#39;s event trigger type if applicable&quot;</span><span class="p">)</span>
+    <span class="n">num_trig_pix</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Number of trigger groups (sectors) listed&quot;</span><span class="p">)</span>
+    <span class="n">trig_pix_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;pixels involved in the camera trigger&quot;</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;numpy array containing integrated ADC data &quot;</span>
+        <span class="s2">&quot;(n_channels x n_pixels) DEPRECATED&quot;</span>
+    <span class="p">))</span>  <span class="c1"># to be removed, since this doesn&#39;t exist in real data and useless in mc</span>
+    <span class="n">waveform</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;numpy array containing ADC samples&quot;</span>
+        <span class="s2">&quot;(n_channels x n_pixels, n_samples)&quot;</span>
+    <span class="p">))</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;number of time samples for telescope&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="R0Container"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.R0Container.html#ctapipe.io.containers.R0Container">[docs]</a><span class="k">class</span> <span class="nc">R0Container</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage of a Merged Raw Data Event</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">obs_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;observation ID&quot;</span><span class="p">)</span>
+    <span class="n">event_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;event id number&quot;</span><span class="p">)</span>
+    <span class="n">tels_with_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;list of telescopes with data&quot;</span><span class="p">)</span>
+    <span class="n">tel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">Map</span><span class="p">(</span><span class="n">R0CameraContainer</span><span class="p">),</span> <span class="s2">&quot;map of tel_id to R0CameraContainer&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="R1CameraContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.R1CameraContainer.html#ctapipe.io.containers.R1CameraContainer">[docs]</a><span class="k">class</span> <span class="nc">R1CameraContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage of r1 calibrated data from a single telescope</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">trigger_time</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Telescope trigger time, start of waveform &quot;</span>
+                               <span class="s2">&quot;readout&quot;</span><span class="p">)</span>
+    <span class="n">trigger_type</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mo">0o0</span><span class="p">,</span> <span class="s2">&quot;camera trigger type&quot;</span><span class="p">)</span>
+
+    <span class="n">waveform</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;numpy array containing a set of images, one per ADC sample&quot;</span>
+        <span class="s2">&quot;(n_channels x n_pixels, n_samples)&quot;</span>
+    <span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="R1Container"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.R1Container.html#ctapipe.io.containers.R1Container">[docs]</a><span class="k">class</span> <span class="nc">R1Container</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage of a r1 calibrated Data Event</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">obs_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;observation ID&quot;</span><span class="p">)</span>
+    <span class="n">event_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;event id number&quot;</span><span class="p">)</span>
+    <span class="n">tels_with_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;list of telescopes with data&quot;</span><span class="p">)</span>
+    <span class="n">tel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">Map</span><span class="p">(</span><span class="n">R1CameraContainer</span><span class="p">),</span> <span class="s2">&quot;map of tel_id to R1CameraContainer&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DL0CameraContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.DL0CameraContainer.html#ctapipe.io.containers.DL0CameraContainer">[docs]</a><span class="k">class</span> <span class="nc">DL0CameraContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage of data volume reduced dl0 data from a single telescope</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">trigger_time</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Telescope trigger time, start of waveform &quot;</span>
+                               <span class="s2">&quot;readout&quot;</span><span class="p">)</span>
+    <span class="n">trigger_type</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mo">0o0</span><span class="p">,</span> <span class="s2">&quot;camera trigger type&quot;</span><span class="p">)</span>
+
+    <span class="n">waveform</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;numpy array containing data volume reduced &quot;</span>
+        <span class="s2">&quot;p.e. samples&quot;</span>
+        <span class="s2">&quot;(n_pixels, n_samples). Note this may be a masked array, &quot;</span>
+        <span class="s2">&quot;if pixels or time slices are zero-suppressed&quot;</span>
+    <span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="DL0Container"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.DL0Container.html#ctapipe.io.containers.DL0Container">[docs]</a><span class="k">class</span> <span class="nc">DL0Container</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage of a data volume reduced Event</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">obs_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;observation ID&quot;</span><span class="p">)</span>
+    <span class="n">event_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;event id number&quot;</span><span class="p">)</span>
+    <span class="n">tels_with_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;list of telescopes with data&quot;</span><span class="p">)</span>
+    <span class="n">tel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">Map</span><span class="p">(</span><span class="n">DL0CameraContainer</span><span class="p">),</span> <span class="s2">&quot;map of tel_id to DL0CameraContainer&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MCCameraEventContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.MCCameraEventContainer.html#ctapipe.io.containers.MCCameraEventContainer">[docs]</a><span class="k">class</span> <span class="nc">MCCameraEventContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage of mc data for a single telescope that change per event</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">photo_electron_image</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">Map</span><span class="p">(),</span> <span class="s2">&quot;reference image in pure photoelectrons, with no noise&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># todo: move to instrument (doesn&#39;t change per event)</span>
+    <span class="n">reference_pulse_shape</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;reference pulse shape for each channel&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># todo: move to instrument or a static MC container (don&#39;t change per</span>
+    <span class="c1"># event)</span>
+    <span class="n">time_slice</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;width of time slice&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">ns</span><span class="p">)</span>
+    <span class="n">dc_to_pe</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;DC/PE calibration arrays from MC file&quot;</span><span class="p">)</span>
+    <span class="n">pedestal</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;pedestal calibration arrays from MC file&quot;</span><span class="p">)</span>
+    <span class="n">azimuth_raw</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Raw azimuth angle [radians from N-&gt;E] for the telescope&quot;</span>
+    <span class="p">)</span>
+    <span class="n">altitude_raw</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Raw altitude angle [radians] for the telescope&quot;</span><span class="p">)</span>
+    <span class="n">azimuth_cor</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;the tracking Azimuth corrected for pointing errors for the telescope&quot;</span>
+    <span class="p">)</span>
+    <span class="n">altitude_cor</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;the tracking Altitude corrected for pointing errors for the telescope&quot;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MCEventContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.MCEventContainer.html#ctapipe.io.containers.MCEventContainer">[docs]</a><span class="k">class</span> <span class="nc">MCEventContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Monte-Carlo</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;Monte-Carlo Energy&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+    <span class="n">alt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;Monte-carlo altitude&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+    <span class="n">az</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;Monte-Carlo azimuth&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+    <span class="n">core_x</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;MC core position&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">core_y</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;MC core position&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">h_first_int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;Height of first interaction&quot;</span><span class="p">)</span>
+    <span class="n">x_max</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;MC Xmax value&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">g</span> <span class="o">/</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">shower_primary_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;MC shower primary ID 0 (gamma), 1(e-),&quot;</span>
+                                    <span class="s2">&quot;2(mu-), 100*A+Z for nucleons and nuclei,&quot;</span>
+                                    <span class="s2">&quot;negative for antimatter.&quot;</span><span class="p">)</span>
+    <span class="n">tel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">Map</span><span class="p">(</span><span class="n">MCCameraEventContainer</span><span class="p">),</span> <span class="s2">&quot;map of tel_id to MCCameraEventContainer&quot;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MCHeaderContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.MCHeaderContainer.html#ctapipe.io.containers.MCHeaderContainer">[docs]</a><span class="k">class</span> <span class="nc">MCHeaderContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Monte-Carlo information that doesn&#39;t change per event</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">run_array_direction</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="p">(</span>
+        <span class="s2">&quot;the tracking/pointing direction in &quot;</span>
+        <span class="s2">&quot;[radians]. Depending on &#39;tracking_mode&#39; &quot;</span>
+        <span class="s2">&quot;this either contains: &quot;</span>
+        <span class="s2">&quot;[0]=Azimuth, [1]=Altitude in mode 0, &quot;</span>
+        <span class="s2">&quot;OR &quot;</span>
+        <span class="s2">&quot;[0]=R.A., [1]=Declination in mode 1.&quot;</span>
+    <span class="p">))</span>
+    <span class="n">corsika_version</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;CORSIKA version * 1000&quot;</span><span class="p">)</span>
+    <span class="n">simtel_version</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;sim_telarray version * 1000&quot;</span><span class="p">)</span>
+    <span class="n">energy_range_min</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Lower limit of energy range &quot;</span>
+                                  <span class="s2">&quot;of primary particle&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+    <span class="n">energy_range_max</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Upper limit of energy range &quot;</span>
+                                  <span class="s2">&quot;of primary particle&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+    <span class="n">prod_site_B_total</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;total geomagnetic field&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">uT</span><span class="p">)</span>
+    <span class="n">prod_site_B_declination</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;magnetic declination&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+    <span class="n">prod_site_B_inclination</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;magnetic inclination&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+    <span class="n">prod_site_alt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;height of observation level&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">prod_site_array</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;None&quot;</span><span class="p">,</span> <span class="s2">&quot;site array&quot;</span><span class="p">)</span>
+    <span class="n">prod_site_coord</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;None&quot;</span><span class="p">,</span> <span class="s2">&quot;site (long., lat.) coordinates&quot;</span><span class="p">)</span>
+    <span class="n">prod_site_subarray</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;None&quot;</span><span class="p">,</span> <span class="s2">&quot;site subarray&quot;</span><span class="p">)</span>
+    <span class="n">spectral_index</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Power-law spectral index of spectrum&quot;</span><span class="p">)</span>
+    <span class="n">shower_prog_start</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;&quot;&quot;Time when shower simulation started,</span>
+<span class="s2">                              CORSIKA: only date&quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="n">shower_prog_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;CORSIKA=1, ALTAI=2, KASCADE=3, MOCCA=4&quot;</span><span class="p">)</span>
+    <span class="n">detector_prog_start</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Time when detector simulation started&quot;</span><span class="p">)</span>
+    <span class="n">detector_prog_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;simtelarray=1&quot;</span><span class="p">)</span>
+    <span class="n">num_showers</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Number of showers simulated&quot;</span><span class="p">)</span>
+    <span class="n">shower_reuse</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Numbers of uses of each shower&quot;</span><span class="p">)</span>
+    <span class="n">max_alt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Maximimum shower altitude&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+    <span class="n">min_alt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Minimum shower altitude&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+    <span class="n">max_az</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Maximum shower azimuth&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+    <span class="n">min_az</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Minimum shower azimuth&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+    <span class="n">diffuse</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Diffuse Mode On/Off&quot;</span><span class="p">)</span>
+    <span class="n">max_viewcone_radius</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Maximum viewcone radius&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+    <span class="n">min_viewcone_radius</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Minimum viewcone radius&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+    <span class="n">max_scatter_range</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Maximum scatter range&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">min_scatter_range</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Minimum scatter range&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">core_pos_mode</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Core Position Mode (fixed/circular/...)&quot;</span><span class="p">)</span>
+    <span class="n">injection_height</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Height of particle injection&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">atmosphere</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Atmospheric model number&quot;</span><span class="p">)</span>
+    <span class="n">corsika_iact_options</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Detector MC information&quot;</span><span class="p">)</span>
+    <span class="n">corsika_low_E_model</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Detector MC information&quot;</span><span class="p">)</span>
+    <span class="n">corsika_high_E_model</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Detector MC information&quot;</span><span class="p">)</span>
+    <span class="n">corsika_bunchsize</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Number of photons per bunch&quot;</span><span class="p">)</span>
+    <span class="n">corsika_wlen_min</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Minimum wavelength of cherenkov light&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">)</span>
+    <span class="n">corsika_wlen_max</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Maximum wavelength of cherenkov light&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">)</span>
+    <span class="n">corsika_low_E_detail</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Detector MC information&quot;</span><span class="p">)</span>
+    <span class="n">corsika_high_E_detail</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Detector MC information&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CentralTriggerContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.CentralTriggerContainer.html#ctapipe.io.containers.CentralTriggerContainer">[docs]</a><span class="k">class</span> <span class="nc">CentralTriggerContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="n">gps_time</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">Time</span><span class="p">,</span> <span class="s2">&quot;central average time stamp&quot;</span><span class="p">)</span>
+    <span class="n">tels_with_trigger</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;list of telescopes with data&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ReconstructedShowerContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.ReconstructedShowerContainer.html#ctapipe.io.containers.ReconstructedShowerContainer">[docs]</a><span class="k">class</span> <span class="nc">ReconstructedShowerContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standard output of algorithms reconstructing shower geometry</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">alt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;reconstructed altitude&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+    <span class="n">alt_uncert</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;reconstructed altitude uncertainty&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+    <span class="n">az</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;reconstructed azimuth&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+    <span class="n">az_uncert</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;reconstructed azimuth uncertainty&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+    <span class="n">core_x</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;reconstructed x coordinate of the core position&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span>
+    <span class="p">)</span>
+    <span class="n">core_y</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;reconstructed y coordinate of the core position&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span>
+    <span class="p">)</span>
+    <span class="n">core_uncert</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;uncertainty of the reconstructed core position&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span>
+    <span class="p">)</span>
+    <span class="n">h_max</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;reconstructed height of the shower maximum&#39;</span><span class="p">)</span>
+    <span class="n">h_max_uncert</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;uncertainty of h_max&#39;</span><span class="p">)</span>
+    <span class="n">is_valid</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s1">&#39;direction validity flag. True if the shower direction&#39;</span>
+        <span class="s1">&#39;was properly reconstructed by the algorithm&#39;</span>
+    <span class="p">))</span>
+    <span class="n">tel_ids</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="p">(</span>
+        <span class="s1">&#39;list of the telescope ids used in the&#39;</span>
+        <span class="s1">&#39; reconstruction of the shower&#39;</span>
+    <span class="p">))</span>
+    <span class="n">average_intensity</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;average intensity of the intensities used for reconstruction&#39;</span><span class="p">)</span>
+    <span class="n">goodness_of_fit</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;measure of algorithm success (if fit)&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ReconstructedEnergyContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.ReconstructedEnergyContainer.html#ctapipe.io.containers.ReconstructedEnergyContainer">[docs]</a><span class="k">class</span> <span class="nc">ReconstructedEnergyContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standard output of algorithms estimating energy</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;reconstructed energy&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+    <span class="n">energy_uncert</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;reconstructed energy uncertainty&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+    <span class="n">is_valid</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s1">&#39;energy reconstruction validity flag. True if &#39;</span>
+        <span class="s1">&#39;the energy was properly reconstructed by the &#39;</span>
+        <span class="s1">&#39;algorithm&#39;</span>
+    <span class="p">))</span>
+    <span class="n">tel_ids</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="p">(</span>
+        <span class="s1">&#39;array containing the telescope ids used in the&#39;</span>
+        <span class="s1">&#39; reconstruction of the shower&#39;</span>
+    <span class="p">))</span>
+    <span class="n">goodness_of_fit</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;goodness of the algorithm fit&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ParticleClassificationContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.ParticleClassificationContainer.html#ctapipe.io.containers.ParticleClassificationContainer">[docs]</a><span class="k">class</span> <span class="nc">ParticleClassificationContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standard output of gamma/hadron classification algorithms</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: Do people agree on this? This is very MAGIC-like.</span>
+    <span class="c1"># TODO: Perhaps an integer classification to support different classes?</span>
+    <span class="c1"># TODO: include an error on the prediction?</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s1">&#39;prediction of the classifier, defined between &#39;</span>
+        <span class="s1">&#39;[0,1], where values close to 0 are more &#39;</span>
+        <span class="s1">&#39;gamma-like, and values close to 1 more &#39;</span>
+        <span class="s1">&#39;hadron-like&#39;</span>
+    <span class="p">))</span>
+    <span class="n">is_valid</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s1">&#39;classificator validity flag. True if the &#39;</span>
+        <span class="s1">&#39;predition was successful within the algorithm &#39;</span>
+        <span class="s1">&#39;validity range&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># TODO: KPK: is this different than the list in the reco</span>
+    <span class="c1"># container? Why repeat?</span>
+    <span class="n">tel_ids</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="p">(</span>
+        <span class="s1">&#39;array containing the telescope ids used &#39;</span>
+        <span class="s1">&#39;in the reconstruction of the shower&#39;</span>
+    <span class="p">))</span>
+    <span class="n">goodness_of_fit</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;goodness of the algorithm fit&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ReconstructedContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.ReconstructedContainer.html#ctapipe.io.containers.ReconstructedContainer">[docs]</a><span class="k">class</span> <span class="nc">ReconstructedContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; collect reconstructed shower info from multiple algorithms &quot;&quot;&quot;</span>
+
+    <span class="n">shower</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">Map</span><span class="p">(</span><span class="n">ReconstructedShowerContainer</span><span class="p">),</span>
+        <span class="s2">&quot;Map of algorithm name to shower info&quot;</span>
+    <span class="p">)</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">Map</span><span class="p">(</span><span class="n">ReconstructedEnergyContainer</span><span class="p">),</span>
+        <span class="s2">&quot;Map of algorithm name to energy info&quot;</span>
+    <span class="p">)</span>
+    <span class="n">classification</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">Map</span><span class="p">(</span><span class="n">ParticleClassificationContainer</span><span class="p">),</span>
+        <span class="s2">&quot;Map of algorithm name to classification info&quot;</span>
+    <span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">TelescopePointingContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Container holding pointing information for a single telescope</span>
+<span class="sd">    after all necessary correction and calibration steps.</span>
+<span class="sd">    These values should be used in the reconstruction to transform</span>
+<span class="sd">    between camera and sky coordinates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">azimuth</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">,</span> <span class="s1">&#39;Azimuth, measured N-&gt;E&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+    <span class="n">altitude</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">,</span> <span class="s1">&#39;Altitude&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DataContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.DataContainer.html#ctapipe.io.containers.DataContainer">[docs]</a><span class="k">class</span> <span class="nc">DataContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Top-level container for all event information &quot;&quot;&quot;</span>
+
+    <span class="n">r0</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">R0Container</span><span class="p">(),</span> <span class="s2">&quot;Raw Data&quot;</span><span class="p">)</span>
+    <span class="n">r1</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">R1Container</span><span class="p">(),</span> <span class="s2">&quot;R1 Calibrated Data&quot;</span><span class="p">)</span>
+    <span class="n">dl0</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">DL0Container</span><span class="p">(),</span> <span class="s2">&quot;DL0 Data Volume Reduced Data&quot;</span><span class="p">)</span>
+    <span class="n">dl1</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">DL1Container</span><span class="p">(),</span> <span class="s2">&quot;DL1 Calibrated image&quot;</span><span class="p">)</span>
+    <span class="n">dl2</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ReconstructedContainer</span><span class="p">(),</span> <span class="s2">&quot;Reconstructed Shower Information&quot;</span><span class="p">)</span>
+    <span class="n">mc</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">MCEventContainer</span><span class="p">(),</span> <span class="s2">&quot;Monte-Carlo data&quot;</span><span class="p">)</span>
+    <span class="n">mcheader</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">MCHeaderContainer</span><span class="p">(),</span> <span class="s2">&quot;Monte-Carlo run header data&quot;</span><span class="p">)</span>
+    <span class="n">trig</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">CentralTriggerContainer</span><span class="p">(),</span> <span class="s2">&quot;central trigger information&quot;</span><span class="p">)</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;number of events processed&quot;</span><span class="p">)</span>
+    <span class="n">inst</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">InstrumentContainer</span><span class="p">(),</span> <span class="s2">&quot;instrumental information (deprecated&quot;</span><span class="p">)</span>
+    <span class="n">pointing</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">Map</span><span class="p">(</span><span class="n">TelescopePointingContainer</span><span class="p">),</span>
+                     <span class="s1">&#39;Telescope pointing positions&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SST1MDataContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.SST1MDataContainer.html#ctapipe.io.containers.SST1MDataContainer">[docs]</a><span class="k">class</span> <span class="nc">SST1MDataContainer</span><span class="p">(</span><span class="n">DataContainer</span><span class="p">):</span>
+    <span class="n">sst1m</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">SST1MContainer</span><span class="p">(),</span> <span class="s2">&quot;optional SST1M Specific Information&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">NectarCAMServiceContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Container for Fields that are specific to each NectarCAM camera configuration</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Data from the CameraConfig table</span>
+    <span class="n">telescope_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;telescope id&quot;</span><span class="p">)</span>
+    <span class="n">cs_serial</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;serial number of the camera server&quot;</span><span class="p">)</span>
+    <span class="n">configuration_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;id of the CameraConfiguration&quot;</span><span class="p">)</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;NTP start of run date&quot;</span><span class="p">)</span>
+    <span class="n">num_pixels</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;number of pixels&quot;</span><span class="p">)</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;num samples&quot;</span><span class="p">)</span>
+    <span class="n">pixel_ids</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;id of the pixels in the waveform array&quot;</span><span class="p">)</span>
+    <span class="n">data_model_version</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;data model version&quot;</span><span class="p">)</span>
+
+    <span class="n">idaq_version</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mo">0o0</span><span class="p">,</span> <span class="s2">&quot;idaq version&quot;</span><span class="p">)</span>
+    <span class="n">cdhs_version</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mo">0o0</span><span class="p">,</span> <span class="s2">&quot;cdhs version&quot;</span><span class="p">)</span>
+    <span class="n">acquisition_mode</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;acquisition mode&quot;</span><span class="p">)</span>
+    <span class="n">algorithms</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;algorithms&quot;</span><span class="p">)</span>
+    <span class="c1"># pre_proc_algorithms = Field(None, &quot;pre processing algorithms&quot;)</span>
+    <span class="n">module_ids</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;module ids&quot;</span><span class="p">)</span>
+    <span class="n">num_modules</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;number of modules&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">NectarCAMEventContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Container for Fields that are specific to each NectarCAM event</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Data from the CameraEvent table</span>
+    <span class="n">configuration_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;id of the CameraConfiguration&quot;</span><span class="p">)</span>
+    <span class="n">event_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;local id of the event&quot;</span><span class="p">)</span>
+    <span class="n">tel_event_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;global id of the event&quot;</span><span class="p">)</span>
+    <span class="n">pixel_status</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;status of the pixels&quot;</span><span class="p">)</span>
+    <span class="n">ped_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;tel_event_id of the event used for pedestal substraction&quot;</span><span class="p">)</span>
+    <span class="n">module_status</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;status of the modules&quot;</span><span class="p">)</span>
+    <span class="n">extdevices_presence</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;presence of data for external devices&quot;</span><span class="p">)</span>
+    <span class="n">tib_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;TIB data array&quot;</span><span class="p">)</span>
+    <span class="n">cdts_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;CDTS data array&quot;</span><span class="p">)</span>
+    <span class="n">swat_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;SWAT data array&quot;</span><span class="p">)</span>
+    <span class="n">counters</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;counters&quot;</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="NectarCAMCameraContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.NectarCAMCameraContainer.html#ctapipe.io.containers.NectarCAMCameraContainer">[docs]</a><span class="k">class</span> <span class="nc">NectarCAMCameraContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Container for Fields that are specific to each NectarCAM camera</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">evt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">NectarCAMEventContainer</span><span class="p">(),</span> <span class="s2">&quot;NectarCAM specific event Information&quot;</span><span class="p">)</span>
+    <span class="n">svc</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">NectarCAMServiceContainer</span><span class="p">(),</span> <span class="s2">&quot;NectarCAM specific camera_config &quot;</span>
+                                             <span class="s2">&quot;Information&quot;</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="NectarCAMContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.NectarCAMContainer.html#ctapipe.io.containers.NectarCAMContainer">[docs]</a><span class="k">class</span> <span class="nc">NectarCAMContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage for the NectarCAMCameraContainer for each telescope</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tels_with_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;list of telescopes with data&quot;</span><span class="p">)</span>
+
+    <span class="c1"># create the camera container</span>
+    <span class="n">tel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">Map</span><span class="p">(</span><span class="n">NectarCAMCameraContainer</span><span class="p">),</span>
+        <span class="s2">&quot;map of tel_id to NectarCAMCameraContainer&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">NectarCAMDataContainer</span><span class="p">(</span><span class="n">DataContainer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data container including NectarCAM information</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nectarcam</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">NectarCAMContainer</span><span class="p">(),</span> <span class="s2">&quot;NectarCAM specific Information&quot;</span><span class="p">)</span>
+
+
+
+<span class="k">class</span> <span class="nc">LSTServiceContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Container for Fields that are specific to each LST camera configuration</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Data from the CameraConfig table</span>
+    <span class="n">telescope_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;telescope id&quot;</span><span class="p">)</span>
+    <span class="n">cs_serial</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;serial number of the camera server&quot;</span><span class="p">)</span>
+    <span class="n">configuration_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;id of the CameraConfiguration&quot;</span><span class="p">)</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;NTP start of run date&quot;</span><span class="p">)</span>
+    <span class="n">num_pixels</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;number of pixels&quot;</span><span class="p">)</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;num samples&quot;</span><span class="p">)</span>
+    <span class="n">pixel_ids</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;id of the pixels in the waveform array&quot;</span><span class="p">)</span>
+    <span class="n">data_model_version</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;data model version&quot;</span><span class="p">)</span>
+
+    <span class="n">idaq_version</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mo">0o0</span><span class="p">,</span> <span class="s2">&quot;idaq version&quot;</span><span class="p">)</span>
+    <span class="n">cdhs_version</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mo">0o0</span><span class="p">,</span> <span class="s2">&quot;cdhs version&quot;</span><span class="p">)</span>
+    <span class="n">algorithms</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;algorithms&quot;</span><span class="p">)</span>
+    <span class="n">pre_proc_algorithms</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;pre processing algorithms&quot;</span><span class="p">)</span>
+    <span class="n">module_ids</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;module ids&quot;</span><span class="p">)</span>
+    <span class="n">num_modules</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;number of modules&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">LSTEventContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Container for Fields that are specific to each LST event</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Data from the CameraEvent table</span>
+    <span class="n">configuration_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;id of the CameraConfiguration&quot;</span><span class="p">)</span>
+    <span class="n">event_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;local id of the event&quot;</span><span class="p">)</span>
+    <span class="n">tel_event_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;global id of the event&quot;</span><span class="p">)</span>
+    <span class="n">pixel_status</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;status of the pixels&quot;</span><span class="p">)</span>
+    <span class="n">ped_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;tel_event_id of the event used for pedestal substraction&quot;</span><span class="p">)</span>
+    <span class="n">module_status</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;status of the modules&quot;</span><span class="p">)</span>
+    <span class="n">extdevices_presence</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;presence of data for external devices&quot;</span><span class="p">)</span>
+    <span class="n">tib_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;TIB data array&quot;</span><span class="p">)</span>
+    <span class="n">cdts_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;CDTS data array&quot;</span><span class="p">)</span>
+    <span class="n">swat_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;SWAT data array&quot;</span><span class="p">)</span>
+    <span class="n">counters</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;counters&quot;</span><span class="p">)</span>
+    <span class="n">chips_flags</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;chips flags&quot;</span><span class="p">)</span>
+    <span class="n">first_capacitor_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;first capacitor id&quot;</span><span class="p">)</span>
+    <span class="n">drs_tag_status</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;DRS tag status&quot;</span><span class="p">)</span>
+    <span class="n">drs_tag</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;DRS tag&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="LSTCameraContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.LSTCameraContainer.html#ctapipe.io.containers.LSTCameraContainer">[docs]</a><span class="k">class</span> <span class="nc">LSTCameraContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Container for Fields that are specific to each LST camera</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">evt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">LSTEventContainer</span><span class="p">(),</span> <span class="s2">&quot;LST specific event Information&quot;</span><span class="p">)</span>
+    <span class="n">svc</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">LSTServiceContainer</span><span class="p">(),</span> <span class="s2">&quot;LST specific camera_config Information&quot;</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="LSTContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.LSTContainer.html#ctapipe.io.containers.LSTContainer">[docs]</a><span class="k">class</span> <span class="nc">LSTContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage for the LSTCameraContainer for each telescope</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tels_with_data</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s2">&quot;list of telescopes with data&quot;</span><span class="p">)</span>
+
+    <span class="c1"># create the camera container</span>
+    <span class="n">tel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">Map</span><span class="p">(</span><span class="n">LSTCameraContainer</span><span class="p">),</span>
+        <span class="s2">&quot;map of tel_id to LSTTelContainer&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">LSTDataContainer</span><span class="p">(</span><span class="n">DataContainer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data container including LST information</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lst</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">LSTContainer</span><span class="p">(),</span> <span class="s2">&quot;LST specific Information&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TargetIOCameraContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.TargetIOCameraContainer.html#ctapipe.io.containers.TargetIOCameraContainer">[docs]</a><span class="k">class</span> <span class="nc">TargetIOCameraContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Container for Fields that are specific to cameras that use TARGET</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">first_cell_ids</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;numpy array of the first_cell_id of each&quot;</span>
+                                  <span class="s2">&quot;waveform in the camera image (n_pixels)&quot;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TargetIOContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.TargetIOContainer.html#ctapipe.io.containers.TargetIOContainer">[docs]</a><span class="k">class</span> <span class="nc">TargetIOContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage for the TargetIOCameraContainer for each telescope</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">tel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">Map</span><span class="p">(</span><span class="n">TargetIOCameraContainer</span><span class="p">),</span>
+                <span class="s2">&quot;map of tel_id to TargetIOCameraContainer&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TargetIODataContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.TargetIODataContainer.html#ctapipe.io.containers.TargetIODataContainer">[docs]</a><span class="k">class</span> <span class="nc">TargetIODataContainer</span><span class="p">(</span><span class="n">DataContainer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data container including targeto information</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">targetio</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">TargetIOContainer</span><span class="p">(),</span> <span class="s2">&quot;TARGET-specific Data&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">MuonRingParameter</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage of muon ring fit output</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    obs_id : int</span>
+<span class="sd">        run number</span>
+<span class="sd">    event_id : int</span>
+<span class="sd">        event number</span>
+<span class="sd">    tel_id : int</span>
+<span class="sd">        telescope ID</span>
+<span class="sd">    ring_center_x, ring_center_y, ring_radius, ring_phi, ring_inclination:</span>
+<span class="sd">        center position, radius, orientation and inlination of the fitted ring</span>
+<span class="sd">    ring_chi2_fit:</span>
+<span class="sd">        chi squared of the ring fit</span>
+<span class="sd">    ring_cov_matrix:</span>
+<span class="sd">        covariance matrix of ring parameters</span>
+<span class="sd">    ring_containment:</span>
+<span class="sd">        angular containment of the ring</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">obs_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;run identification number&quot;</span><span class="p">)</span>
+    <span class="n">event_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;event identification number&quot;</span><span class="p">)</span>
+    <span class="n">tel_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;telescope identification number&#39;</span><span class="p">)</span>
+    <span class="n">ring_center_x</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;centre (x) of the fitted muon ring&#39;</span><span class="p">)</span>
+    <span class="n">ring_center_y</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;centre (y) of the fitted muon ring&#39;</span><span class="p">)</span>
+    <span class="n">ring_radius</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;radius of the fitted muon ring&#39;</span><span class="p">)</span>
+    <span class="n">ring_phi</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;Orientation of fitted ring&#39;</span><span class="p">)</span>
+    <span class="n">ring_inclination</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;Inclination of fitted ring&#39;</span><span class="p">)</span>
+    <span class="n">ring_chi2_fit</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;chisquare of the muon ring fit&#39;</span><span class="p">)</span>
+    <span class="n">ring_cov_matrix</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;covariance matrix of the muon ring fit&#39;</span><span class="p">)</span>
+    <span class="n">ring_containment</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;containment of the ring inside the camera&#39;</span><span class="p">)</span>
+    <span class="n">ring_fit_method</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s1">&#39;fitting method used for the muon ring&#39;</span><span class="p">)</span>
+    <span class="n">inputfile</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s1">&#39;input file&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MuonIntensityParameter</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Storage of muon intensity fit output</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    obs_id : int</span>
+<span class="sd">        run number</span>
+<span class="sd">    event_id : int</span>
+<span class="sd">        event number</span>
+<span class="sd">    tel_id : int</span>
+<span class="sd">        telescope ID</span>
+<span class="sd">    impact_parameter: float</span>
+<span class="sd">        reconstructed impact parameter</span>
+<span class="sd">    impact_parameter_chi2:</span>
+<span class="sd">        chi squared impact parameter</span>
+<span class="sd">    intensity_cov_matrix:</span>
+<span class="sd">        Covariance matrix of impact parameters or alternatively:</span>
+<span class="sd">        full 5x5 covariance matrix for the complete fit (ring + impact)</span>
+<span class="sd">    impact_parameter_pos_x, impact_parameter_pos_y:</span>
+<span class="sd">        position on the mirror of the muon impact</span>
+<span class="sd">    COG_x, COG_y:</span>
+<span class="sd">        center of gravity</span>
+<span class="sd">    optical_efficiency_muon:</span>
+<span class="sd">        optical muon efficiency from intensity fit</span>
+<span class="sd">    ring_completeness:</span>
+<span class="sd">        completeness of the ring</span>
+<span class="sd">    ring_pix_completeness:</span>
+<span class="sd">        pixel completeness of the ring</span>
+<span class="sd">    ring_num_pixel: int</span>
+<span class="sd">        Number of pixels composing the ring</span>
+<span class="sd">    ring_size:</span>
+<span class="sd">        ring size</span>
+<span class="sd">    off_ring_size:</span>
+<span class="sd">        size outside of the ring</span>
+<span class="sd">    ring_width:</span>
+<span class="sd">        ring width</span>
+<span class="sd">    ring_time_width:</span>
+<span class="sd">        standard deviation of the photons time arrival</span>
+<span class="sd">    prediction: dict</span>
+<span class="sd">        ndarray of the predicted charge in all pixels</span>
+<span class="sd">    mask:</span>
+<span class="sd">        ndarray of the mask used on the image for fitting</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">obs_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;run identification number&#39;</span><span class="p">)</span>
+    <span class="n">event_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;event identification number&#39;</span><span class="p">)</span>
+    <span class="n">tel_id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;telescope identification number&#39;</span><span class="p">)</span>
+    <span class="n">ring_completeness</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;fraction of ring present&#39;</span><span class="p">)</span>
+    <span class="n">ring_pix_completeness</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;fraction of pixels present in the ring&#39;</span><span class="p">)</span>
+    <span class="n">ring_num_pixel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;number of pixels in the ring image&#39;</span><span class="p">)</span>
+    <span class="n">ring_size</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;size of the ring in pe&#39;</span><span class="p">)</span>
+    <span class="n">off_ring_size</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;image size outside of ring in pe&#39;</span><span class="p">)</span>
+    <span class="n">ring_width</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;width of the muon ring in degrees&#39;</span><span class="p">)</span>
+    <span class="n">ring_time_width</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;duration of the ring image sequence&#39;</span><span class="p">)</span>
+    <span class="n">impact_parameter</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span>
+                             <span class="s1">&#39;distance of muon impact position from centre of mirror&#39;</span><span class="p">)</span>
+    <span class="n">impact_parameter_chi2</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;impact parameter chi squared&#39;</span><span class="p">)</span>
+    <span class="n">intensity_cov_matrix</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;covariance matrix of intensity&#39;</span><span class="p">)</span>
+    <span class="n">impact_parameter_pos_x</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;impact parameter x position&#39;</span><span class="p">)</span>
+    <span class="n">impact_parameter_pos_y</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;impact parameter y position&#39;</span><span class="p">)</span>
+    <span class="n">COG_x</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;Centre of Gravity x&#39;</span><span class="p">)</span>
+    <span class="n">COG_y</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;Centre of Gravity y&#39;</span><span class="p">)</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s1">&#39;image prediction&#39;</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([],</span> <span class="s1">&#39;image pixel mask&#39;</span><span class="p">)</span>
+    <span class="n">optical_efficiency_muon</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;optical efficiency muon&#39;</span><span class="p">)</span>
+    <span class="n">intensity_fit_method</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s1">&#39;intensity fit method&#39;</span><span class="p">)</span>
+    <span class="n">inputfile</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s1">&#39;input file&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="HillasParametersContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.HillasParametersContainer.html#ctapipe.io.containers.HillasParametersContainer">[docs]</a><span class="k">class</span> <span class="nc">HillasParametersContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="n">container_prefix</span> <span class="o">=</span> <span class="s1">&#39;hillas&#39;</span>
+
+    <span class="n">intensity</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;total intensity (size)&#39;</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;centroid x coordinate&#39;</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;centroid x coordinate&#39;</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;radial coordinate of centroid&#39;</span><span class="p">)</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;polar coordinate of centroid&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+    <span class="n">length</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;RMS spread along the major-axis&#39;</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;RMS spread along the minor-axis&#39;</span><span class="p">)</span>
+    <span class="n">psi</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;rotation angle of ellipse&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+    <span class="n">skewness</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;measure of the asymmetry&#39;</span><span class="p">)</span>
+    <span class="n">kurtosis</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;measure of the tailedness&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LeakageContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.LeakageContainer.html#ctapipe.io.containers.LeakageContainer">[docs]</a><span class="k">class</span> <span class="nc">LeakageContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Leakage</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">container_prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="n">leakage1_pixel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">nan</span><span class="p">,</span>
+        <span class="s1">&#39;Percentage of pixels after cleaning&#39;</span>
+        <span class="s1">&#39; that are in camera border of width=1&#39;</span>
+    <span class="p">)</span>
+    <span class="n">leakage2_pixel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">nan</span><span class="p">,</span>
+        <span class="s1">&#39;Percentage of pixels after cleaning&#39;</span>
+        <span class="s1">&#39; that are in camera border of width=2&#39;</span>
+    <span class="p">)</span>
+    <span class="n">leakage1_intensity</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">nan</span><span class="p">,</span>
+        <span class="s1">&#39;Percentage of photo-electrons after cleaning&#39;</span>
+        <span class="s1">&#39; that are in the camera border of width=1&#39;</span>
+    <span class="p">)</span>
+    <span class="n">leakage2_intensity</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">nan</span><span class="p">,</span>
+        <span class="s1">&#39;Percentage of photo-electrons after cleaning&#39;</span>
+        <span class="s1">&#39; that are in the camera border of width=2&#39;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConcentrationContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.ConcentrationContainer.html#ctapipe.io.containers.ConcentrationContainer">[docs]</a><span class="k">class</span> <span class="nc">ConcentrationContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Concentrations are ratios between light amount</span>
+<span class="sd">    in certain areas of the image and the full image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">concentration_cog</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">nan</span><span class="p">,</span>
+        <span class="s1">&#39;Percentage of photo-electrons in the three pixels closest to the cog&#39;</span>
+    <span class="p">)</span>
+    <span class="n">concentration_core</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">nan</span><span class="p">,</span>
+        <span class="s1">&#39;Percentage of photo-electrons inside the hillas ellipse&#39;</span>
+    <span class="p">)</span>
+    <span class="n">concentration_pixel</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">nan</span><span class="p">,</span>
+        <span class="s1">&#39;Percentage of photo-electrons in the brightest pixel&#39;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimingParametersContainer"><a class="viewcode-back" href="../../../api/ctapipe.io.containers.TimingParametersContainer.html#ctapipe.io.containers.TimingParametersContainer">[docs]</a><span class="k">class</span> <span class="nc">TimingParametersContainer</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Slope and Intercept of a linear regression of the arrival times</span>
+<span class="sd">    along the shower main axis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">slope</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;Slope of arrival times along main shower axis&#39;</span><span class="p">)</span>
+    <span class="n">intercept</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">nan</span><span class="p">,</span> <span class="s1">&#39;intercept of arrival times along main shower axis&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+AverageWfPeakIntegrator
+=======================
+
+.. currentmodule:: ctapipe.image
+
+.. autoclass:: AverageWfPeakIntegrator
+   :show-inheritance:

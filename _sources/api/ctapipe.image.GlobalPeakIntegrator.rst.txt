@@ -1,0 +1,7 @@
+GlobalPeakIntegrator
+====================
+
+.. currentmodule:: ctapipe.image
+
+.. autoclass:: GlobalPeakIntegrator
+   :show-inheritance:

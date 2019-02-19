@@ -1,0 +1,7 @@
+<map id="inheritancea596043660" name="inheritancea596043660">
+<area shape="rect" id="node1" title="Base class of all Components (sometimes called" alt="" coords="347,23,421,42"/>
+<area shape="rect" id="node4" href="../../api/ctapipe.image.reducers.DataVolumeReducer.html#ctapipe.image.reducers.DataVolumeReducer" target="_top" title="Base component for data volume reducers." alt="" coords="457,4,575,23"/>
+<area shape="rect" id="node6" title="A base class for all class factories that exist in the `Tools`/`Components`" alt="" coords="489,41,543,61"/>
+<area shape="rect" id="node5" href="../../api/ctapipe.image.reducers.DataVolumeReducerFactory.html#ctapipe.image.reducers.DataVolumeReducerFactory" target="_top" title="Factory class for creating a DataVolumeReducer" alt="" coords="611,41,764,61"/>
+<area shape="rect" id="node7" title="The base class for all classes that have descriptors." alt="" coords="4,23,96,42"/>
+</map>

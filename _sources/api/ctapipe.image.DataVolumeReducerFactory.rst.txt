@@ -1,0 +1,21 @@
+DataVolumeReducerFactory
+========================
+
+.. currentmodule:: ctapipe.image
+
+.. autoclass:: DataVolumeReducerFactory
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~DataVolumeReducerFactory.product
+      ~DataVolumeReducerFactory.subclass_names
+      ~DataVolumeReducerFactory.subclasses
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: product
+   .. autoattribute:: subclass_names
+   .. autoattribute:: subclasses

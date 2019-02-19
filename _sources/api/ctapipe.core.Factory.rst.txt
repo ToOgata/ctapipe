@@ -1,0 +1,37 @@
+Factory
+=======
+
+.. currentmodule:: ctapipe.core
+
+.. autoclass:: Factory
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Factory.base
+      ~Factory.custom_product_help
+      ~Factory.default
+      ~Factory.product
+      ~Factory.subclass_names
+      ~Factory.subclasses
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~Factory.produce
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: base
+   .. autoattribute:: custom_product_help
+   .. autoattribute:: default
+   .. autoattribute:: product
+   .. autoattribute:: subclass_names
+   .. autoattribute:: subclasses
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: produce

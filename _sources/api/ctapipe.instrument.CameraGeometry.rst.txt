@@ -1,0 +1,55 @@
+CameraGeometry
+==============
+
+.. currentmodule:: ctapipe.instrument
+
+.. autoclass:: CameraGeometry
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~CameraGeometry.neighbor_matrix
+      ~CameraGeometry.neighbor_matrix_sparse
+      ~CameraGeometry.neighbor_matrix_where
+      ~CameraGeometry.neighbors
+      ~CameraGeometry.pixel_moment_matrix
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~CameraGeometry.from_name
+      ~CameraGeometry.from_table
+      ~CameraGeometry.get_border_pixel_mask
+      ~CameraGeometry.get_known_camera_names
+      ~CameraGeometry.get_shower_coordinates
+      ~CameraGeometry.guess
+      ~CameraGeometry.info
+      ~CameraGeometry.make_rectangular
+      ~CameraGeometry.position_to_pix_index
+      ~CameraGeometry.rotate
+      ~CameraGeometry.to_table
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: neighbor_matrix
+   .. autoattribute:: neighbor_matrix_sparse
+   .. autoattribute:: neighbor_matrix_where
+   .. autoattribute:: neighbors
+   .. autoattribute:: pixel_moment_matrix
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_name
+   .. automethod:: from_table
+   .. automethod:: get_border_pixel_mask
+   .. automethod:: get_known_camera_names
+   .. automethod:: get_shower_coordinates
+   .. automethod:: guess
+   .. automethod:: info
+   .. automethod:: make_rectangular
+   .. automethod:: position_to_pix_index
+   .. automethod:: rotate
+   .. automethod:: to_table

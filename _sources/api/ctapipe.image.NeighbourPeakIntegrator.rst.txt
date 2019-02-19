@@ -1,0 +1,27 @@
+NeighbourPeakIntegrator
+=======================
+
+.. currentmodule:: ctapipe.image
+
+.. autoclass:: NeighbourPeakIntegrator
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~NeighbourPeakIntegrator.lwt
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~NeighbourPeakIntegrator.requires_neighbours
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: lwt
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: requires_neighbours

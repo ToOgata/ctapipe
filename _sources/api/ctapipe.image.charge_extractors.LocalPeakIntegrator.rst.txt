@@ -1,0 +1,7 @@
+LocalPeakIntegrator
+===================
+
+.. currentmodule:: ctapipe.image.charge_extractors
+
+.. autoclass:: LocalPeakIntegrator
+   :show-inheritance:

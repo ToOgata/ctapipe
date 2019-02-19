@@ -1,0 +1,27 @@
+R0Container
+===========
+
+.. currentmodule:: ctapipe.io.containers
+
+.. autoclass:: R0Container
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~R0Container.event_id
+      ~R0Container.meta
+      ~R0Container.obs_id
+      ~R0Container.prefix
+      ~R0Container.tel
+      ~R0Container.tels_with_data
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: event_id
+   .. autoattribute:: meta
+   .. autoattribute:: obs_id
+   .. autoattribute:: prefix
+   .. autoattribute:: tel
+   .. autoattribute:: tels_with_data

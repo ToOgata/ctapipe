@@ -1,0 +1,369 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>For ROOT users &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tutorials" href="../tutorials/index.html" />
+    <link rel="prev" title="Maintainer info" href="maintainer-info.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Development Guidelines</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="style-guide.html">Style Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code-guidelines.html">Code Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support-libraries.html">Support Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pullrequests.html">Making and Accepting Pull Requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maintainer-info.html">Maintainer info</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">For ROOT users</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Development Guidelines</a> &raquo;</li>
+        
+      <li>For ROOT users</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/development/rootmigration.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="for-root-users">
+<h1>For ROOT users<a class="headerlink" href="#for-root-users" title="Permalink to this headline">¶</a></h1>
+<p>Many previous VHE gamma-ray developers are familiar with the CERN ROOT
+library for data processing.  <code class="xref py py-obj docutils literal notranslate"><span class="pre">ctapipe</span></code> is intentionally not ROOT
+based, and we do not allow ROOT or pyroot as a <em>required dependency</em>
+of ctapipe due to its large and complex nature and maintenence
+issues. Fortunately nearly all ROOT-like functionality can be found in
+the scientific python stack, though the API is of course not the same.</p>
+<p>To help developers familiar only with ROOT migrate to the scientific
+python stack, the following table can be helpful:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>ROOT functionality</strong></th>
+<th class="head"><strong>Recommended Python Equivalent</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>interactive interpreter</td>
+<td>ipython, jupyter notebook</td>
+</tr>
+<tr class="row-odd"><td>TH1D,TH2D,TH3D</td>
+<td>numpy.ndarray + numpy.histogramdd()</td>
+</tr>
+<tr class="row-even"><td>TProfile</td>
+<td>numpy.ndarray</td>
+</tr>
+<tr class="row-odd"><td>TGraph</td>
+<td>numpy.ndarray + matplotlib plots</td>
+</tr>
+<tr class="row-even"><td>TTree</td>
+<td>astropy.table, pandas, pytables</td>
+</tr>
+<tr class="row-odd"><td>ROOT File format (TFile)</td>
+<td>HDF5 (pytables)</td>
+</tr>
+<tr class="row-even"><td>TMinuit</td>
+<td>scipy.optimize or iminuit</td>
+</tr>
+<tr class="row-odd"><td>2D/3D graphics</td>
+<td>matplotlib or bokeh</td>
+</tr>
+<tr class="row-even"><td>TMVA</td>
+<td>scikit-learn</td>
+</tr>
+<tr class="row-odd"><td>GUI</td>
+<td>various (wxwidgets, Qt,gtk)</td>
+</tr>
+<tr class="row-even"><td>AstroROOT</td>
+<td>astropy.io.fits or fitsio</td>
+</tr>
+<tr class="row-odd"><td>ROOFit</td>
+<td>astropy.modelling or lmfit</td>
+</tr>
+<tr class="row-even"><td>Reflex, CINT</td>
+<td>not needed</td>
+</tr>
+<tr class="row-odd"><td>TMatrix, etc</td>
+<td>numpy.ndarray + scipy.linalg</td>
+</tr>
+<tr class="row-even"><td>TMatrixTSparse</td>
+<td>scipy.sparse</td>
+</tr>
+<tr class="row-odd"><td>TList</td>
+<td>list</td>
+</tr>
+<tr class="row-even"><td>TArray, TObjArray</td>
+<td>list</td>
+</tr>
+<tr class="row-odd"><td>TMap, THashList</td>
+<td>dict</td>
+</tr>
+<tr class="row-even"><td>TRandom</td>
+<td>numpy.random + scipy.stats</td>
+</tr>
+<tr class="row-odd"><td>Math, MathMore</td>
+<td>numpy + scipy</td>
+</tr>
+<tr class="row-even"><td>Script compilation</td>
+<td>Numba, Cython</td>
+</tr>
+<tr class="row-odd"><td>ROOT::Math::VirtualIntegrator</td>
+<td>scipy.integrate</td>
+</tr>
+<tr class="row-even"><td>Access to external C++ code</td>
+<td>cython, ctypes</td>
+</tr>
+<tr class="row-odd"><td>–</td>
+<td>astropy.coordinates</td>
+</tr>
+<tr class="row-even"><td>–</td>
+<td>astropy.units</td>
+</tr>
+<tr class="row-odd"><td>–</td>
+<td>astropy.time</td>
+</tr>
+<tr class="row-even"><td>–</td>
+<td>astropy.wcs (projections)</td>
+</tr>
+<tr class="row-odd"><td>–</td>
+<td>numpy.ndarray (n-dimensional tables)</td>
+</tr>
+<tr class="row-even"><td>–</td>
+<td>scipy.interpolate.interpnd (n-dimensional interpolation)</td>
+</tr>
+<tr class="row-odd"><td>–</td>
+<td>scipy.signal (digital signal processing)</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../tutorials/index.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="maintainer-info.html" class="btn btn-neutral" title="Maintainer info" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

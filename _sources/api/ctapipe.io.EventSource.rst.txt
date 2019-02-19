@@ -1,0 +1,33 @@
+EventSource
+===========
+
+.. currentmodule:: ctapipe.io
+
+.. autoclass:: EventSource
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~EventSource.allowed_tels
+      ~EventSource.input_url
+      ~EventSource.is_stream
+      ~EventSource.max_events
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~EventSource.is_compatible
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: allowed_tels
+   .. autoattribute:: input_url
+   .. autoattribute:: is_stream
+   .. autoattribute:: max_events
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: is_compatible

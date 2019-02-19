@@ -1,0 +1,21 @@
+SST1MDataContainer
+==================
+
+.. currentmodule:: ctapipe.io.containers
+
+.. autoclass:: SST1MDataContainer
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SST1MDataContainer.meta
+      ~SST1MDataContainer.prefix
+      ~SST1MDataContainer.sst1m
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: meta
+   .. autoattribute:: prefix
+   .. autoattribute:: sst1m

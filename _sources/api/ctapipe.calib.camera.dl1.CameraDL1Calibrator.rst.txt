@@ -1,0 +1,33 @@
+CameraDL1Calibrator
+===================
+
+.. currentmodule:: ctapipe.calib.camera.dl1
+
+.. autoclass:: CameraDL1Calibrator
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~CameraDL1Calibrator.clip_amplitude
+      ~CameraDL1Calibrator.radius
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~CameraDL1Calibrator.calibrate
+      ~CameraDL1Calibrator.check_dl0_exists
+      ~CameraDL1Calibrator.get_correction
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: clip_amplitude
+   .. autoattribute:: radius
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: calibrate
+   .. automethod:: check_dl0_exists
+   .. automethod:: get_correction

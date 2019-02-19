@@ -1,0 +1,29 @@
+DL1CameraContainer
+==================
+
+.. currentmodule:: ctapipe.io.containers
+
+.. autoclass:: DL1CameraContainer
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~DL1CameraContainer.cleaned
+      ~DL1CameraContainer.extracted_samples
+      ~DL1CameraContainer.gain_channel
+      ~DL1CameraContainer.image
+      ~DL1CameraContainer.meta
+      ~DL1CameraContainer.peakpos
+      ~DL1CameraContainer.prefix
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: cleaned
+   .. autoattribute:: extracted_samples
+   .. autoattribute:: gain_channel
+   .. autoattribute:: image
+   .. autoattribute:: meta
+   .. autoattribute:: peakpos
+   .. autoattribute:: prefix

@@ -1,0 +1,19 @@
+SimTelEventSource
+=================
+
+.. currentmodule:: ctapipe.io
+
+.. autoclass:: SimTelEventSource
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SimTelEventSource.is_compatible
+      ~SimTelEventSource.prepare_subarray_info
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: is_compatible
+   .. automethod:: prepare_subarray_info

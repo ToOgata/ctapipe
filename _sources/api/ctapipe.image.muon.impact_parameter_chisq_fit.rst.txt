@@ -1,0 +1,6 @@
+impact_parameter_chisq_fit
+==========================
+
+.. currentmodule:: ctapipe.image.muon
+
+.. autofunction:: impact_parameter_chisq_fit

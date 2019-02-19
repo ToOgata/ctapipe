@@ -1,0 +1,17 @@
+NullWaveformCleaner
+===================
+
+.. currentmodule:: ctapipe.image
+
+.. autoclass:: NullWaveformCleaner
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~NullWaveformCleaner.apply
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: apply

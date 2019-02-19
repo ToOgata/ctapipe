@@ -1,0 +1,6 @@
+<map id="inheritance1f848a8568" name="inheritance1f848a8568">
+<area shape="rect" id="node1" title="`CameraGeometry` is a class that stores information about a" alt="" coords="16,153,155,179"/>
+<area shape="rect" id="node2" title="Describes the optics of a Cherenkov Telescope mirror" alt="" coords="17,104,154,129"/>
+<area shape="rect" id="node3" title="Collects the `TelescopeDescription` of all telescopes along with their" alt="" coords="8,55,163,80"/>
+<area shape="rect" id="node4" title="Describes a Cherenkov Telescope and it&#39;s associated `OpticsDescription` and" alt="" coords="5,5,165,31"/>
+</map>

@@ -1,0 +1,23 @@
+SST1MContainer
+==============
+
+.. currentmodule:: ctapipe.io.containers
+
+.. autoclass:: SST1MContainer
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SST1MContainer.meta
+      ~SST1MContainer.prefix
+      ~SST1MContainer.tel
+      ~SST1MContainer.tels_with_data
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: meta
+   .. autoattribute:: prefix
+   .. autoattribute:: tel
+   .. autoattribute:: tels_with_data

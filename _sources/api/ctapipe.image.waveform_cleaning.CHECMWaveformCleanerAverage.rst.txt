@@ -1,0 +1,17 @@
+CHECMWaveformCleanerAverage
+===========================
+
+.. currentmodule:: ctapipe.image.waveform_cleaning
+
+.. autoclass:: CHECMWaveformCleanerAverage
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~CHECMWaveformCleanerAverage.get_extractor
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: get_extractor

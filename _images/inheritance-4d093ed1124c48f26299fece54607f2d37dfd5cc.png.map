@@ -1,0 +1,10 @@
+<map id="inheritance86c477692e" name="inheritance86c477692e">
+<area shape="rect" id="node1" title="The base R1&#45;level calibrator. Fills the r1 container." alt="" coords="457,61,575,80"/>
+<area shape="rect" id="node7" href="../../api/ctapipe.calib.camera.r1.HESSIOR1Calibrator.html#ctapipe.calib.camera.r1.HESSIOR1Calibrator" target="_top" title="The R1 calibrator for hessio files. Fills the r1 container." alt="" coords="630,4,745,23"/>
+<area shape="rect" id="node9" href="../../api/ctapipe.calib.camera.r1.NullR1Calibrator.html#ctapipe.calib.camera.r1.NullR1Calibrator" target="_top" title="A dummy R1 calibrator that simply fills the r1 container with the samples" alt="" coords="638,41,737,61"/>
+<area shape="rect" id="node10" href="../../api/ctapipe.calib.camera.r1.TargetIOR1Calibrator.html#ctapipe.calib.camera.r1.TargetIOR1Calibrator" target="_top" title="TargetIOR1Calibrator" alt="" coords="628,79,747,98"/>
+<area shape="rect" id="node2" title="Base class of all Components (sometimes called" alt="" coords="347,98,421,117"/>
+<area shape="rect" id="node4" title="A base class for all class factories that exist in the `Tools`/`Components`" alt="" coords="489,116,543,136"/>
+<area shape="rect" id="node3" href="../../api/ctapipe.calib.camera.r1.CameraR1CalibratorFactory.html#ctapipe.calib.camera.r1.CameraR1CalibratorFactory" target="_top" title="The R1 calibrator `ctapipe.core.factory.Factory`. This" alt="" coords="611,116,764,136"/>
+<area shape="rect" id="node8" title="The base class for all classes that have descriptors." alt="" coords="4,98,96,117"/>
+</map>

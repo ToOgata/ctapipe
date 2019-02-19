@@ -1,0 +1,1639 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Creating command-line Tools &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using the ctapipe Provenance service" href="provenance.html" />
+    <link rel="prev" title="Using Container classes" href="containers.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dilate_image.html">Basic Image Cleaning and Dilation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nd_interpolation.html">Use N-dimensional Histogram functionality and Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="convert_hex_to_square.html">Convert hexagonal cameras into square grid and back</a></li>
+<li class="toctree-l2"><a class="reference internal" href="InstrumentDescription.html">Working with Instrumental Descriptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera_display.html">Example of a Camera Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="containers.html">Using Container classes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Creating command-line Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Setup:">Setup:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Now-create-an-executable-Tool-that-contains-the-Components">Now create an executable Tool that contains the Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Get-Help-info">Get Help info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Run-the-tool">Run the tool</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html">Using the ctapipe Provenance service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="table_writer_reader.html">Writing Containers to a tabular format</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Examples</a> &raquo;</li>
+        
+      <li>Creating command-line Tools</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/Tools.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 5ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="Creating-command-line-Tools">
+<h1>Creating command-line Tools<a class="headerlink" href="#Creating-command-line-Tools" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ctapipe.core</span> <span class="k">import</span> <span class="n">Tool</span><span class="p">,</span> <span class="n">Component</span>
+<span class="kn">from</span> <span class="nn">ctapipe.core.traits</span> <span class="k">import</span> <span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">Float</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span><span class="n">Unicode</span><span class="p">,</span> <span class="n">TraitError</span><span class="p">,</span> <span class="n">observe</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
+</pre></div>
+</div>
+</div>
+<p>see <a class="reference external" href="https://github.com/ipython/traitlets/blob/master/examples/myapp.py">https://github.com/ipython/traitlets/blob/master/examples/myapp.py</a></p>
+<div class="section" id="Setup:">
+<h2>Setup:<a class="headerlink" href="#Setup:" title="Permalink to this headline">¶</a></h2>
+<p>Create a few <code class="docutils literal notranslate"><span class="pre">Component</span></code>s that we will use later in a <code class="docutils literal notranslate"><span class="pre">Tool</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">class</span> <span class="nc">MyComponent</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Do some things&quot;</span>
+
+    <span class="n">value</span> <span class="o">=</span> <span class="n">Integer</span><span class="p">(</span><span class="n">default_value</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Value to use&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">do_thing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Did thing&quot;</span><span class="p">)</span>
+
+<span class="c1"># in order to have 2 of the same components at once</span>
+<span class="k">class</span> <span class="nc">SecondaryMyComponent</span><span class="p">(</span><span class="n">MyComponent</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">AdvancedComponent</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;AdvancedComponent&quot;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;something more advanced&quot;</span>
+
+    <span class="n">value1</span> <span class="o">=</span> <span class="n">Integer</span><span class="p">(</span><span class="n">default_value</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Value to use&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">infile</span> <span class="o">=</span> <span class="n">Unicode</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;input file name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">outfile</span> <span class="o">=</span> <span class="n">Unicode</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;output file name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@observe</span><span class="p">(</span><span class="s1">&#39;outfile&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">on_outfile_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Outfile was changed to &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">change</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Now-create-an-executable-Tool-that-contains-the-Components">
+<h2>Now create an executable Tool that contains the Components<a class="headerlink" href="#Now-create-an-executable-Tool-that-contains-the-Components" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">class</span> <span class="nc">MyTool</span><span class="p">(</span><span class="n">Tool</span><span class="p">):</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mytool&quot;</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;do some things and stuff&quot;</span>
+    <span class="n">aliases</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">infile</span><span class="o">=</span><span class="s1">&#39;AdvancedComponent.infile&#39;</span><span class="p">,</span>
+                        <span class="n">iterations</span><span class="o">=</span><span class="s1">&#39;MyTool.iterations&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Which classes are registered for configuration</span>
+    <span class="n">classes</span> <span class="o">=</span> <span class="n">List</span><span class="p">([</span><span class="n">MyComponent</span><span class="p">,</span> <span class="n">AdvancedComponent</span><span class="p">,</span> <span class="n">SecondaryMyComponent</span><span class="p">])</span>
+
+    <span class="c1"># local configuration parameters</span>
+    <span class="n">iterations</span> <span class="o">=</span> <span class="n">Integer</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of times to run&quot;</span><span class="p">,</span><span class="n">allow_none</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setup_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comp</span> <span class="o">=</span> <span class="n">MyComponent</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span> <span class="o">=</span> <span class="n">SecondaryMyComponent</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setup_advanced</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advanced</span> <span class="o">=</span> <span class="n">AdvancedComponent</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_comp</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_advanced</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Performing </span><span class="si">{}</span><span class="s2"> iterations...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ITERATION </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">do_thing</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="o">.</span><span class="n">do_thing</span><span class="p">()</span>
+            <span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Shutting down.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Get-Help-info">
+<h2>Get Help info<a class="headerlink" href="#Get-Help-info" title="Permalink to this headline">¶</a></h2>
+<p>The following allows you to print the help info within a Jupyter notebook, but this same inforamtion would be displayed if the user types:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mytool</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool</span><span class="o">=</span><span class="n">MyTool</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+do some things and stuff
+
+Options
+-------
+
+Arguments that take values are actually convenience aliases to full
+Configurables, whose aliases are listed on the help line. For more information
+on full configurables, see &#39;--help-all&#39;.
+
+--infile=&lt;Unicode&gt; (AdvancedComponent.infile)
+    Default: &#39;&#39;
+    input file name
+--iterations=&lt;Int&gt; (MyTool.iterations)
+    Default: 5
+    Number of times to run
+--log-level=&lt;Enum&gt; (Application.log_level)
+    Default: 30
+    Choices: (0, 10, 20, 30, 40, 50, &#39;DEBUG&#39;, &#39;INFO&#39;, &#39;WARN&#39;, &#39;ERROR&#39;, &#39;CRITICAL&#39;)
+    Set the log level by value or name.
+--config=&lt;Unicode&gt; (Tool.config_file)
+    Default: &#39;&#39;
+    name of a configuration file with parameters to load in addition to command-
+    line parameters
+
+To see all available configurables, use `--help-all`
+
+</pre></div></div>
+</div>
+<p>The following is equivalant to the user typing <code class="docutils literal notranslate"><span class="pre">mytool</span> <span class="pre">--help-all</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool</span><span class="o">.</span><span class="n">print_help</span><span class="p">(</span><span class="n">classes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+do some things and stuff
+
+Options
+-------
+
+Arguments that take values are actually convenience aliases to full
+Configurables, whose aliases are listed on the help line. For more information
+on full configurables, see &#39;--help-all&#39;.
+
+--infile=&lt;Unicode&gt; (AdvancedComponent.infile)
+    Default: &#39;&#39;
+    input file name
+--iterations=&lt;Int&gt; (MyTool.iterations)
+    Default: 5
+    Number of times to run
+--log-level=&lt;Enum&gt; (Application.log_level)
+    Default: 30
+    Choices: (0, 10, 20, 30, 40, 50, &#39;DEBUG&#39;, &#39;INFO&#39;, &#39;WARN&#39;, &#39;ERROR&#39;, &#39;CRITICAL&#39;)
+    Set the log level by value or name.
+--config=&lt;Unicode&gt; (Tool.config_file)
+    Default: &#39;&#39;
+    name of a configuration file with parameters to load in addition to command-
+    line parameters
+
+Class parameters
+----------------
+
+Parameters are set from command-line arguments of the form:
+`--Class.trait=value`. This line is evaluated in Python, so simple expressions
+are allowed, e.g.:: `--C.a=&#39;range(3)&#39;` For setting C.a=[0,1,2].
+
+MyTool options
+--------------
+--MyTool.config_file=&lt;Unicode&gt;
+    Default: &#39;&#39;
+    name of a configuration file with parameters to load in addition to command-
+    line parameters
+--MyTool.iterations=&lt;Int&gt;
+    Default: 5
+    Number of times to run
+--MyTool.log_datefmt=&lt;Unicode&gt;
+    Default: &#39;%Y-%m-%d %H:%M:%S&#39;
+    The date format used by logging formatters for %(asctime)s
+--MyTool.log_format=&lt;Unicode&gt;
+    Default: &#39;[%(name)s]%(highlevel)s %(message)s&#39;
+    The Logging format template
+--MyTool.log_level=&lt;Enum&gt;
+    Default: 30
+    Choices: (0, 10, 20, 30, 40, 50, &#39;DEBUG&#39;, &#39;INFO&#39;, &#39;WARN&#39;, &#39;ERROR&#39;, &#39;CRITICAL&#39;)
+    Set the log level by value or name.
+
+MyComponent options
+-------------------
+--MyComponent.value=&lt;Int&gt;
+    Default: -1
+    Value to use
+
+AdvancedComponent options
+-------------------------
+--AdvancedComponent.infile=&lt;Unicode&gt;
+    Default: &#39;&#39;
+    input file name
+--AdvancedComponent.outfile=&lt;Unicode&gt;
+    Default: &#39;&#39;
+    output file name
+--AdvancedComponent.value1=&lt;Int&gt;
+    Default: -1
+    Value to use
+
+SecondaryMyComponent options
+----------------------------
+--SecondaryMyComponent.value=&lt;Int&gt;
+    Default: -1
+    Value to use
+
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Run-the-tool">
+<h2>Run the tool<a class="headerlink" href="#Run-the-tool" title="Permalink to this headline">¶</a></h2>
+<p>here we pass in argv since it is a Notebook, but if argv is not specified it’s read from <code class="docutils literal notranslate"><span class="pre">sys.argv</span></code>, so the following is the same as running:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mytool --log_level<span class="o">=</span>INFO --infile bork.txt --iterations<span class="o">=</span><span class="m">3</span>
+</pre></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/initialize): ctapipe version 0.6.2.post4+gitc3efe61
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/run): Starting: mytool
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): Performing 5 iterations...
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): ITERATION 0
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): ITERATION 1
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): ITERATION 2
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): ITERATION 3
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): ITERATION 4
+<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/finish): Shutting down.
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/run): Finished: mytool
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/run): Output:
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool</span><span class="o">.</span><span class="n">log_format</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> : </span><span class="si">%(levelname)s</span><span class="s2"> [</span><span class="si">%(name)s</span><span class="s2"> </span><span class="si">%(funcName)s</span><span class="s2">] </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+<span class="n">tool</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;--log-level&#39;</span><span class="p">,</span><span class="s1">&#39;INFO&#39;</span><span class="p">,</span><span class="s1">&#39;--infile&#39;</span><span class="p">,</span><span class="s1">&#39;bork.txt&#39;</span><span class="p">,</span><span class="s1">&#39;--iterations&#39;</span><span class="p">,</span><span class="s1">&#39;3&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2019-02-19 13:23:40 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool initialize] ctapipe version 0.6.2.post4+gitc3efe61
+2019-02-19 13:23:40 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool run] Starting: mytool
+2019-02-19 13:23:40 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool start] Performing 3 iterations...
+2019-02-19 13:23:40 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool start] ITERATION 0
+2019-02-19 13:23:40 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool start] ITERATION 1
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool start] ITERATION 2
+2019-02-19 13:23:41 : <span class="ansi-yellow-intense-fg ansi-bold">WARNING</span> [MyTool finish] Shutting down.
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool run] Finished: mytool
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool run] Output:
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool run] Output:
+</pre></div></div>
+</div>
+<p>here we change the log-level to DEBUG:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;--log-level&#39;</span><span class="p">,</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span><span class="s1">&#39;--infile&#39;</span><span class="p">,</span><span class="s1">&#39;bork.txt&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool initialize] ctapipe version 0.6.2.post4+gitc3efe61
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool run] Starting: mytool
+2019-02-19 13:23:41 : <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool run] CONFIG: {&#39;MyTool&#39;: {&#39;log_level&#39;: &#39;DEBUG&#39;, &#39;iterations&#39;: 3}, &#39;AdvancedComponent&#39;: {&#39;infile&#39;: &#39;bork.txt&#39;}}
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool start] Performing 3 iterations...
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool start] ITERATION 0
+2019-02-19 13:23:41 : <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.MyComponent do_thing] Did thing
+2019-02-19 13:23:41 : <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.SecondaryMyComponent do_thing] Did thing
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool start] ITERATION 1
+2019-02-19 13:23:41 : <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.MyComponent do_thing] Did thing
+2019-02-19 13:23:41 : <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.SecondaryMyComponent do_thing] Did thing
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool start] ITERATION 2
+2019-02-19 13:23:41 : <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.MyComponent do_thing] Did thing
+2019-02-19 13:23:41 : <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.SecondaryMyComponent do_thing] Did thing
+2019-02-19 13:23:41 : <span class="ansi-yellow-intense-fg ansi-bold">WARNING</span> [MyTool finish] Shutting down.
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool run] Finished: mytool
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool run] Output:
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool run] Output:
+2019-02-19 13:23:41 : <span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool run] Output:
+2019-02-19 13:23:41 : <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool run] PROVENANCE: &#39;[
+   {
+      &#34;activity_name&#34;: &#34;mytool&#34;,
+      &#34;activity_uuid&#34;: &#34;aadf8b94-7d48-4dfc-b596-3e7245438e89&#34;,
+      &#34;start&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:40.260&#34;
+      },
+      &#34;stop&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:40.804&#34;
+      },
+      &#34;system&#34;: {
+         &#34;ctapipe_version&#34;: &#34;0.6.2.post4+gitc3efe61&#34;,
+         &#34;ctapipe_resources_version&#34;: &#34;0.2.16&#34;,
+         &#34;ctapipe_svc_path&#34;: null,
+         &#34;executable&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin/python&#34;,
+         &#34;platform&#34;: {
+            &#34;architecture_bits&#34;: &#34;64bit&#34;,
+            &#34;architecture_linkage&#34;: &#34;&#34;,
+            &#34;machine&#34;: &#34;x86_64&#34;,
+            &#34;processor&#34;: &#34;x86_64&#34;,
+            &#34;node&#34;: &#34;travis-job-4768c51f-0a5e-4958-8d80-51e4b1cc88b7&#34;,
+            &#34;version&#34;: &#34;#124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017&#34;,
+            &#34;system&#34;: &#34;Linux&#34;,
+            &#34;release&#34;: &#34;4.4.0-101-generic&#34;,
+            &#34;libcver&#34;: [
+               &#34;glibc&#34;,
+               &#34;2.10&#34;
+            ],
+            &#34;num_cpus&#34;: 2,
+            &#34;boot_time&#34;: &#34;2019-02-19T13:14:56.000&#34;
+         },
+         &#34;python&#34;: {
+            &#34;version_string&#34;: &#34;3.7.2 (default, Dec 29 2018, 06:19:36) \n[GCC 7.3.0]&#34;,
+            &#34;version&#34;: [
+               &#34;3&#34;,
+               &#34;7&#34;,
+               &#34;2&#34;
+            ],
+            &#34;compiler&#34;: &#34;GCC 7.3.0&#34;,
+            &#34;implementation&#34;: &#34;CPython&#34;
+         },
+         &#34;environment&#34;: {
+            &#34;CONDA_DEFAULT_ENV&#34;: &#34;cta-dev&#34;,
+            &#34;CONDA_PREFIX&#34;: &#34;/home/travis/miniconda/envs/cta-dev&#34;,
+            &#34;CONDA_PYTHON_EXE&#34;: &#34;/home/travis/miniconda/bin/python&#34;,
+            &#34;CONDA_EXE&#34;: &#34;/home/travis/miniconda/bin/conda&#34;,
+            &#34;CONDA_PROMPT_MODIFIER&#34;: &#34;&#34;,
+            &#34;CONDA_SHLVL&#34;: &#34;1&#34;,
+            &#34;PATH&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin:/home/travis/miniconda/condabin:/home/travis/miniconda/bin:/home/travis/bin:/home/travis/.local/bin:/opt/pyenv/shims:/home/travis/.phpenv/shims:/home/travis/perl5/perlbrew/bin:/home/travis/.nvm/versions/node/v8.9.1/bin:/home/travis/.kiex/elixirs/elixir-1.4.5/bin:/home/travis/.kiex/bin:/home/travis/.rvm/gems/ruby-2.4.1/bin:/home/travis/.rvm/gems/ruby-2.4.1@global/bin:/home/travis/.rvm/rubies/ruby-2.4.1/bin:/home/travis/gopath/bin:/home/travis/.gimme/versions/go1.7.4.linux.amd64/bin:/usr/local/phantomjs/bin:/usr/local/phantomjs:/usr/local/neo4j-3.2.7/bin:/usr/local/maven-3.5.2/bin:/usr/local/cmake-3.9.2/bin:/usr/local/clang-5.0.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/travis/.rvm/bin:/home/travis/.phpenv/bin:/opt/pyenv/bin:/home/travis/.yarn/bin&#34;,
+            &#34;LD_LIBRARY_PATH&#34;: null,
+            &#34;DYLD_LIBRARY_PATH&#34;: null,
+            &#34;USER&#34;: &#34;travis&#34;,
+            &#34;HOME&#34;: &#34;/home/travis&#34;,
+            &#34;SHELL&#34;: &#34;/bin/bash&#34;
+         },
+         &#34;arguments&#34;: [
+            &#34;/home/travis/miniconda/envs/cta-dev/lib/python3.7/site-packages/ipykernel_launcher.py&#34;,
+            &#34;-f&#34;,
+            &#34;/tmp/tmpitlta6w3.json&#34;
+         ],
+         &#34;start_time_utc&#34;: &#34;2019-02-19T13:23:40.293&#34;
+      },
+      &#34;input&#34;: [],
+      &#34;output&#34;: [],
+      &#34;config&#34;: {},
+      &#34;status&#34;: &#34;completed&#34;,
+      &#34;duration_min&#34;: 0.009066666666566192
+   },
+   {
+      &#34;activity_name&#34;: &#34;mytool&#34;,
+      &#34;activity_uuid&#34;: &#34;1f2770b3-056b-4f29-ae9f-73ae2c110583&#34;,
+      &#34;start&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:40.825&#34;
+      },
+      &#34;stop&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:41.166&#34;
+      },
+      &#34;system&#34;: {
+         &#34;ctapipe_version&#34;: &#34;0.6.2.post4+gitc3efe61&#34;,
+         &#34;ctapipe_resources_version&#34;: &#34;0.2.16&#34;,
+         &#34;ctapipe_svc_path&#34;: null,
+         &#34;executable&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin/python&#34;,
+         &#34;platform&#34;: {
+            &#34;architecture_bits&#34;: &#34;64bit&#34;,
+            &#34;architecture_linkage&#34;: &#34;&#34;,
+            &#34;machine&#34;: &#34;x86_64&#34;,
+            &#34;processor&#34;: &#34;x86_64&#34;,
+            &#34;node&#34;: &#34;travis-job-4768c51f-0a5e-4958-8d80-51e4b1cc88b7&#34;,
+            &#34;version&#34;: &#34;#124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017&#34;,
+            &#34;system&#34;: &#34;Linux&#34;,
+            &#34;release&#34;: &#34;4.4.0-101-generic&#34;,
+            &#34;libcver&#34;: [
+               &#34;glibc&#34;,
+               &#34;2.10&#34;
+            ],
+            &#34;num_cpus&#34;: 2,
+            &#34;boot_time&#34;: &#34;2019-02-19T13:14:56.000&#34;
+         },
+         &#34;python&#34;: {
+            &#34;version_string&#34;: &#34;3.7.2 (default, Dec 29 2018, 06:19:36) \n[GCC 7.3.0]&#34;,
+            &#34;version&#34;: [
+               &#34;3&#34;,
+               &#34;7&#34;,
+               &#34;2&#34;
+            ],
+            &#34;compiler&#34;: &#34;GCC 7.3.0&#34;,
+            &#34;implementation&#34;: &#34;CPython&#34;
+         },
+         &#34;environment&#34;: {
+            &#34;CONDA_DEFAULT_ENV&#34;: &#34;cta-dev&#34;,
+            &#34;CONDA_PREFIX&#34;: &#34;/home/travis/miniconda/envs/cta-dev&#34;,
+            &#34;CONDA_PYTHON_EXE&#34;: &#34;/home/travis/miniconda/bin/python&#34;,
+            &#34;CONDA_EXE&#34;: &#34;/home/travis/miniconda/bin/conda&#34;,
+            &#34;CONDA_PROMPT_MODIFIER&#34;: &#34;&#34;,
+            &#34;CONDA_SHLVL&#34;: &#34;1&#34;,
+            &#34;PATH&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin:/home/travis/miniconda/condabin:/home/travis/miniconda/bin:/home/travis/bin:/home/travis/.local/bin:/opt/pyenv/shims:/home/travis/.phpenv/shims:/home/travis/perl5/perlbrew/bin:/home/travis/.nvm/versions/node/v8.9.1/bin:/home/travis/.kiex/elixirs/elixir-1.4.5/bin:/home/travis/.kiex/bin:/home/travis/.rvm/gems/ruby-2.4.1/bin:/home/travis/.rvm/gems/ruby-2.4.1@global/bin:/home/travis/.rvm/rubies/ruby-2.4.1/bin:/home/travis/gopath/bin:/home/travis/.gimme/versions/go1.7.4.linux.amd64/bin:/usr/local/phantomjs/bin:/usr/local/phantomjs:/usr/local/neo4j-3.2.7/bin:/usr/local/maven-3.5.2/bin:/usr/local/cmake-3.9.2/bin:/usr/local/clang-5.0.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/travis/.rvm/bin:/home/travis/.phpenv/bin:/opt/pyenv/bin:/home/travis/.yarn/bin&#34;,
+            &#34;LD_LIBRARY_PATH&#34;: null,
+            &#34;DYLD_LIBRARY_PATH&#34;: null,
+            &#34;USER&#34;: &#34;travis&#34;,
+            &#34;HOME&#34;: &#34;/home/travis&#34;,
+            &#34;SHELL&#34;: &#34;/bin/bash&#34;
+         },
+         &#34;arguments&#34;: [
+            &#34;/home/travis/miniconda/envs/cta-dev/lib/python3.7/site-packages/ipykernel_launcher.py&#34;,
+            &#34;-f&#34;,
+            &#34;/tmp/tmpitlta6w3.json&#34;
+         ],
+         &#34;start_time_utc&#34;: &#34;2019-02-19T13:23:40.858&#34;
+      },
+      &#34;input&#34;: [],
+      &#34;output&#34;: [],
+      &#34;config&#34;: {
+         &#34;MyTool&#34;: {
+            &#34;log_level&#34;: &#34;INFO&#34;,
+            &#34;iterations&#34;: 3
+         },
+         &#34;AdvancedComponent&#34;: {
+            &#34;infile&#34;: &#34;bork.txt&#34;
+         }
+      },
+      &#34;status&#34;: &#34;completed&#34;,
+      &#34;duration_min&#34;: 0.00568333333339055
+   },
+   {
+      &#34;activity_name&#34;: &#34;mytool&#34;,
+      &#34;activity_uuid&#34;: &#34;1bb15572-8534-4a99-9489-2a74840307b4&#34;,
+      &#34;start&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:41.189&#34;
+      },
+      &#34;stop&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:41.534&#34;
+      },
+      &#34;system&#34;: {
+         &#34;ctapipe_version&#34;: &#34;0.6.2.post4+gitc3efe61&#34;,
+         &#34;ctapipe_resources_version&#34;: &#34;0.2.16&#34;,
+         &#34;ctapipe_svc_path&#34;: null,
+         &#34;executable&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin/python&#34;,
+         &#34;platform&#34;: {
+            &#34;architecture_bits&#34;: &#34;64bit&#34;,
+            &#34;architecture_linkage&#34;: &#34;&#34;,
+            &#34;machine&#34;: &#34;x86_64&#34;,
+            &#34;processor&#34;: &#34;x86_64&#34;,
+            &#34;node&#34;: &#34;travis-job-4768c51f-0a5e-4958-8d80-51e4b1cc88b7&#34;,
+            &#34;version&#34;: &#34;#124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017&#34;,
+            &#34;system&#34;: &#34;Linux&#34;,
+            &#34;release&#34;: &#34;4.4.0-101-generic&#34;,
+            &#34;libcver&#34;: [
+               &#34;glibc&#34;,
+               &#34;2.10&#34;
+            ],
+            &#34;num_cpus&#34;: 2,
+            &#34;boot_time&#34;: &#34;2019-02-19T13:14:56.000&#34;
+         },
+         &#34;python&#34;: {
+            &#34;version_string&#34;: &#34;3.7.2 (default, Dec 29 2018, 06:19:36) \n[GCC 7.3.0]&#34;,
+            &#34;version&#34;: [
+               &#34;3&#34;,
+               &#34;7&#34;,
+               &#34;2&#34;
+            ],
+            &#34;compiler&#34;: &#34;GCC 7.3.0&#34;,
+            &#34;implementation&#34;: &#34;CPython&#34;
+         },
+         &#34;environment&#34;: {
+            &#34;CONDA_DEFAULT_ENV&#34;: &#34;cta-dev&#34;,
+            &#34;CONDA_PREFIX&#34;: &#34;/home/travis/miniconda/envs/cta-dev&#34;,
+            &#34;CONDA_PYTHON_EXE&#34;: &#34;/home/travis/miniconda/bin/python&#34;,
+            &#34;CONDA_EXE&#34;: &#34;/home/travis/miniconda/bin/conda&#34;,
+            &#34;CONDA_PROMPT_MODIFIER&#34;: &#34;&#34;,
+            &#34;CONDA_SHLVL&#34;: &#34;1&#34;,
+            &#34;PATH&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin:/home/travis/miniconda/condabin:/home/travis/miniconda/bin:/home/travis/bin:/home/travis/.local/bin:/opt/pyenv/shims:/home/travis/.phpenv/shims:/home/travis/perl5/perlbrew/bin:/home/travis/.nvm/versions/node/v8.9.1/bin:/home/travis/.kiex/elixirs/elixir-1.4.5/bin:/home/travis/.kiex/bin:/home/travis/.rvm/gems/ruby-2.4.1/bin:/home/travis/.rvm/gems/ruby-2.4.1@global/bin:/home/travis/.rvm/rubies/ruby-2.4.1/bin:/home/travis/gopath/bin:/home/travis/.gimme/versions/go1.7.4.linux.amd64/bin:/usr/local/phantomjs/bin:/usr/local/phantomjs:/usr/local/neo4j-3.2.7/bin:/usr/local/maven-3.5.2/bin:/usr/local/cmake-3.9.2/bin:/usr/local/clang-5.0.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/travis/.rvm/bin:/home/travis/.phpenv/bin:/opt/pyenv/bin:/home/travis/.yarn/bin&#34;,
+            &#34;LD_LIBRARY_PATH&#34;: null,
+            &#34;DYLD_LIBRARY_PATH&#34;: null,
+            &#34;USER&#34;: &#34;travis&#34;,
+            &#34;HOME&#34;: &#34;/home/travis&#34;,
+            &#34;SHELL&#34;: &#34;/bin/bash&#34;
+         },
+         &#34;arguments&#34;: [
+            &#34;/home/travis/miniconda/envs/cta-dev/lib/python3.7/site-packages/ipykernel_launcher.py&#34;,
+            &#34;-f&#34;,
+            &#34;/tmp/tmpitlta6w3.json&#34;
+         ],
+         &#34;start_time_utc&#34;: &#34;2019-02-19T13:23:41.221&#34;
+      },
+      &#34;input&#34;: [],
+      &#34;output&#34;: [],
+      &#34;config&#34;: {
+         &#34;MyTool&#34;: {
+            &#34;log_level&#34;: &#34;DEBUG&#34;,
+            &#34;iterations&#34;: 3
+         },
+         &#34;AdvancedComponent&#34;: {
+            &#34;infile&#34;: &#34;bork.txt&#34;
+         }
+      },
+      &#34;status&#34;: &#34;completed&#34;,
+      &#34;duration_min&#34;: 0.0057500000001375895
+   }
+]&#39;
+</pre></div></div>
+</div>
+<p>you can also set parameters directly in the class, rather than using the argument/configfile parser. This is useful if you are calling the Tool from a script rather than the command-line</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">tool</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">tool</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2019-02-19 13:23:41 : <span class="ansi-yellow-intense-fg ansi-bold">WARNING</span> [MyTool finish] Shutting down.
+</pre></div></div>
+</div>
+<p>see what happens when a value is set that is not of the correct type:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">tool</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="s2">&quot;badval&quot;</span>
+<span class="k">except</span> <span class="n">TraitError</span> <span class="k">as</span> <span class="n">E</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bad value:&quot;</span><span class="p">,</span><span class="n">E</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+bad value: The &#39;iterations&#39; trait of a MyTool instance must be an int, but a value of &#39;badval&#39; &lt;class &#39;str&#39;&gt; was specified.
+</pre></div></div>
+</div>
+<p>Example of what happens when you change a parameter that is being “observed” in a class. It’s handler is called:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool</span><span class="o">.</span><span class="n">advanced</span><span class="o">.</span><span class="n">outfile</span> <span class="o">=</span> <span class="s2">&quot;Another.txt&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+2019-02-19 13:23:41 : <span class="ansi-yellow-intense-fg ansi-bold">WARNING</span> [MyTool.AdvancedComponent on_outfile_changed] Outfile was changed to &#39;{&#39;name&#39;: &#39;outfile&#39;, &#39;old&#39;: &#39;&#39;, &#39;new&#39;: &#39;Another.txt&#39;, &#39;owner&#39;: &lt;__main__.AdvancedComponent object at 0x7fa4fa2d2128&gt;, &#39;type&#39;: &#39;change&#39;}&#39;
+</pre></div></div>
+</div>
+<p>we see that the handler for <code class="docutils literal notranslate"><span class="pre">outfile</span></code> was called, and it receive a change dict that shows the old and new values.</p>
+<p>create a tool using a config file:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">!</span>cat Tools.json
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{
+    &#34;version&#34;: 1.0,
+    &#34;MyTool&#34;: {&#34;log_level&#34;:&#34;DEBUG&#34;},
+    &#34;AdvancedComponent&#34;: {&#34;infile&#34;: &#34;something.txt&#34;}
+}
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool2</span> <span class="o">=</span> <span class="n">MyTool</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;--config&#39;</span><span class="p">,</span><span class="s1">&#39;Tools.json&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/initialize): ctapipe version 0.6.2.post4+gitc3efe61
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/run): Starting: mytool
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool] (tool/run): CONFIG: {&#39;MyTool&#39;: {&#39;config_file&#39;: &#39;Tools.json&#39;, &#39;log_level&#39;: &#39;DEBUG&#39;}, &#39;AdvancedComponent&#39;: {&#39;infile&#39;: &#39;something.txt&#39;}}
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): Performing 5 iterations...
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): ITERATION 0
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.MyComponent] (&lt;ipython-input-2-7241f06e2dbb&gt;/do_thing): Did thing
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.SecondaryMyComponent] (&lt;ipython-input-2-7241f06e2dbb&gt;/do_thing): Did thing
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): ITERATION 1
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.MyComponent] (&lt;ipython-input-2-7241f06e2dbb&gt;/do_thing): Did thing
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.SecondaryMyComponent] (&lt;ipython-input-2-7241f06e2dbb&gt;/do_thing): Did thing
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): ITERATION 2
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.MyComponent] (&lt;ipython-input-2-7241f06e2dbb&gt;/do_thing): Did thing
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.SecondaryMyComponent] (&lt;ipython-input-2-7241f06e2dbb&gt;/do_thing): Did thing
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): ITERATION 3
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.MyComponent] (&lt;ipython-input-2-7241f06e2dbb&gt;/do_thing): Did thing
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.SecondaryMyComponent] (&lt;ipython-input-2-7241f06e2dbb&gt;/do_thing): Did thing
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/start): ITERATION 4
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.MyComponent] (&lt;ipython-input-2-7241f06e2dbb&gt;/do_thing): Did thing
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool.SecondaryMyComponent] (&lt;ipython-input-2-7241f06e2dbb&gt;/do_thing): Did thing
+<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span> [MyTool] (&lt;ipython-input-3-09e2be0e553d&gt;/finish): Shutting down.
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/run): Finished: mytool
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/run): Output:
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/run): Output:
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/run): Output:
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/run): Output:
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/run): Output:
+<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> [MyTool] (tool/run): PROVENANCE: &#39;[
+   {
+      &#34;activity_name&#34;: &#34;mytool&#34;,
+      &#34;activity_uuid&#34;: &#34;aadf8b94-7d48-4dfc-b596-3e7245438e89&#34;,
+      &#34;start&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:40.260&#34;
+      },
+      &#34;stop&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:40.804&#34;
+      },
+      &#34;system&#34;: {
+         &#34;ctapipe_version&#34;: &#34;0.6.2.post4+gitc3efe61&#34;,
+         &#34;ctapipe_resources_version&#34;: &#34;0.2.16&#34;,
+         &#34;ctapipe_svc_path&#34;: null,
+         &#34;executable&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin/python&#34;,
+         &#34;platform&#34;: {
+            &#34;architecture_bits&#34;: &#34;64bit&#34;,
+            &#34;architecture_linkage&#34;: &#34;&#34;,
+            &#34;machine&#34;: &#34;x86_64&#34;,
+            &#34;processor&#34;: &#34;x86_64&#34;,
+            &#34;node&#34;: &#34;travis-job-4768c51f-0a5e-4958-8d80-51e4b1cc88b7&#34;,
+            &#34;version&#34;: &#34;#124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017&#34;,
+            &#34;system&#34;: &#34;Linux&#34;,
+            &#34;release&#34;: &#34;4.4.0-101-generic&#34;,
+            &#34;libcver&#34;: [
+               &#34;glibc&#34;,
+               &#34;2.10&#34;
+            ],
+            &#34;num_cpus&#34;: 2,
+            &#34;boot_time&#34;: &#34;2019-02-19T13:14:56.000&#34;
+         },
+         &#34;python&#34;: {
+            &#34;version_string&#34;: &#34;3.7.2 (default, Dec 29 2018, 06:19:36) \n[GCC 7.3.0]&#34;,
+            &#34;version&#34;: [
+               &#34;3&#34;,
+               &#34;7&#34;,
+               &#34;2&#34;
+            ],
+            &#34;compiler&#34;: &#34;GCC 7.3.0&#34;,
+            &#34;implementation&#34;: &#34;CPython&#34;
+         },
+         &#34;environment&#34;: {
+            &#34;CONDA_DEFAULT_ENV&#34;: &#34;cta-dev&#34;,
+            &#34;CONDA_PREFIX&#34;: &#34;/home/travis/miniconda/envs/cta-dev&#34;,
+            &#34;CONDA_PYTHON_EXE&#34;: &#34;/home/travis/miniconda/bin/python&#34;,
+            &#34;CONDA_EXE&#34;: &#34;/home/travis/miniconda/bin/conda&#34;,
+            &#34;CONDA_PROMPT_MODIFIER&#34;: &#34;&#34;,
+            &#34;CONDA_SHLVL&#34;: &#34;1&#34;,
+            &#34;PATH&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin:/home/travis/miniconda/condabin:/home/travis/miniconda/bin:/home/travis/bin:/home/travis/.local/bin:/opt/pyenv/shims:/home/travis/.phpenv/shims:/home/travis/perl5/perlbrew/bin:/home/travis/.nvm/versions/node/v8.9.1/bin:/home/travis/.kiex/elixirs/elixir-1.4.5/bin:/home/travis/.kiex/bin:/home/travis/.rvm/gems/ruby-2.4.1/bin:/home/travis/.rvm/gems/ruby-2.4.1@global/bin:/home/travis/.rvm/rubies/ruby-2.4.1/bin:/home/travis/gopath/bin:/home/travis/.gimme/versions/go1.7.4.linux.amd64/bin:/usr/local/phantomjs/bin:/usr/local/phantomjs:/usr/local/neo4j-3.2.7/bin:/usr/local/maven-3.5.2/bin:/usr/local/cmake-3.9.2/bin:/usr/local/clang-5.0.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/travis/.rvm/bin:/home/travis/.phpenv/bin:/opt/pyenv/bin:/home/travis/.yarn/bin&#34;,
+            &#34;LD_LIBRARY_PATH&#34;: null,
+            &#34;DYLD_LIBRARY_PATH&#34;: null,
+            &#34;USER&#34;: &#34;travis&#34;,
+            &#34;HOME&#34;: &#34;/home/travis&#34;,
+            &#34;SHELL&#34;: &#34;/bin/bash&#34;
+         },
+         &#34;arguments&#34;: [
+            &#34;/home/travis/miniconda/envs/cta-dev/lib/python3.7/site-packages/ipykernel_launcher.py&#34;,
+            &#34;-f&#34;,
+            &#34;/tmp/tmpitlta6w3.json&#34;
+         ],
+         &#34;start_time_utc&#34;: &#34;2019-02-19T13:23:40.293&#34;
+      },
+      &#34;input&#34;: [],
+      &#34;output&#34;: [],
+      &#34;config&#34;: {},
+      &#34;status&#34;: &#34;completed&#34;,
+      &#34;duration_min&#34;: 0.009066666666566192
+   },
+   {
+      &#34;activity_name&#34;: &#34;mytool&#34;,
+      &#34;activity_uuid&#34;: &#34;1f2770b3-056b-4f29-ae9f-73ae2c110583&#34;,
+      &#34;start&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:40.825&#34;
+      },
+      &#34;stop&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:41.166&#34;
+      },
+      &#34;system&#34;: {
+         &#34;ctapipe_version&#34;: &#34;0.6.2.post4+gitc3efe61&#34;,
+         &#34;ctapipe_resources_version&#34;: &#34;0.2.16&#34;,
+         &#34;ctapipe_svc_path&#34;: null,
+         &#34;executable&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin/python&#34;,
+         &#34;platform&#34;: {
+            &#34;architecture_bits&#34;: &#34;64bit&#34;,
+            &#34;architecture_linkage&#34;: &#34;&#34;,
+            &#34;machine&#34;: &#34;x86_64&#34;,
+            &#34;processor&#34;: &#34;x86_64&#34;,
+            &#34;node&#34;: &#34;travis-job-4768c51f-0a5e-4958-8d80-51e4b1cc88b7&#34;,
+            &#34;version&#34;: &#34;#124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017&#34;,
+            &#34;system&#34;: &#34;Linux&#34;,
+            &#34;release&#34;: &#34;4.4.0-101-generic&#34;,
+            &#34;libcver&#34;: [
+               &#34;glibc&#34;,
+               &#34;2.10&#34;
+            ],
+            &#34;num_cpus&#34;: 2,
+            &#34;boot_time&#34;: &#34;2019-02-19T13:14:56.000&#34;
+         },
+         &#34;python&#34;: {
+            &#34;version_string&#34;: &#34;3.7.2 (default, Dec 29 2018, 06:19:36) \n[GCC 7.3.0]&#34;,
+            &#34;version&#34;: [
+               &#34;3&#34;,
+               &#34;7&#34;,
+               &#34;2&#34;
+            ],
+            &#34;compiler&#34;: &#34;GCC 7.3.0&#34;,
+            &#34;implementation&#34;: &#34;CPython&#34;
+         },
+         &#34;environment&#34;: {
+            &#34;CONDA_DEFAULT_ENV&#34;: &#34;cta-dev&#34;,
+            &#34;CONDA_PREFIX&#34;: &#34;/home/travis/miniconda/envs/cta-dev&#34;,
+            &#34;CONDA_PYTHON_EXE&#34;: &#34;/home/travis/miniconda/bin/python&#34;,
+            &#34;CONDA_EXE&#34;: &#34;/home/travis/miniconda/bin/conda&#34;,
+            &#34;CONDA_PROMPT_MODIFIER&#34;: &#34;&#34;,
+            &#34;CONDA_SHLVL&#34;: &#34;1&#34;,
+            &#34;PATH&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin:/home/travis/miniconda/condabin:/home/travis/miniconda/bin:/home/travis/bin:/home/travis/.local/bin:/opt/pyenv/shims:/home/travis/.phpenv/shims:/home/travis/perl5/perlbrew/bin:/home/travis/.nvm/versions/node/v8.9.1/bin:/home/travis/.kiex/elixirs/elixir-1.4.5/bin:/home/travis/.kiex/bin:/home/travis/.rvm/gems/ruby-2.4.1/bin:/home/travis/.rvm/gems/ruby-2.4.1@global/bin:/home/travis/.rvm/rubies/ruby-2.4.1/bin:/home/travis/gopath/bin:/home/travis/.gimme/versions/go1.7.4.linux.amd64/bin:/usr/local/phantomjs/bin:/usr/local/phantomjs:/usr/local/neo4j-3.2.7/bin:/usr/local/maven-3.5.2/bin:/usr/local/cmake-3.9.2/bin:/usr/local/clang-5.0.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/travis/.rvm/bin:/home/travis/.phpenv/bin:/opt/pyenv/bin:/home/travis/.yarn/bin&#34;,
+            &#34;LD_LIBRARY_PATH&#34;: null,
+            &#34;DYLD_LIBRARY_PATH&#34;: null,
+            &#34;USER&#34;: &#34;travis&#34;,
+            &#34;HOME&#34;: &#34;/home/travis&#34;,
+            &#34;SHELL&#34;: &#34;/bin/bash&#34;
+         },
+         &#34;arguments&#34;: [
+            &#34;/home/travis/miniconda/envs/cta-dev/lib/python3.7/site-packages/ipykernel_launcher.py&#34;,
+            &#34;-f&#34;,
+            &#34;/tmp/tmpitlta6w3.json&#34;
+         ],
+         &#34;start_time_utc&#34;: &#34;2019-02-19T13:23:40.858&#34;
+      },
+      &#34;input&#34;: [],
+      &#34;output&#34;: [],
+      &#34;config&#34;: {
+         &#34;MyTool&#34;: {
+            &#34;log_level&#34;: &#34;INFO&#34;,
+            &#34;iterations&#34;: 3
+         },
+         &#34;AdvancedComponent&#34;: {
+            &#34;infile&#34;: &#34;bork.txt&#34;
+         }
+      },
+      &#34;status&#34;: &#34;completed&#34;,
+      &#34;duration_min&#34;: 0.00568333333339055
+   },
+   {
+      &#34;activity_name&#34;: &#34;mytool&#34;,
+      &#34;activity_uuid&#34;: &#34;1bb15572-8534-4a99-9489-2a74840307b4&#34;,
+      &#34;start&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:41.189&#34;
+      },
+      &#34;stop&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:41.534&#34;
+      },
+      &#34;system&#34;: {
+         &#34;ctapipe_version&#34;: &#34;0.6.2.post4+gitc3efe61&#34;,
+         &#34;ctapipe_resources_version&#34;: &#34;0.2.16&#34;,
+         &#34;ctapipe_svc_path&#34;: null,
+         &#34;executable&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin/python&#34;,
+         &#34;platform&#34;: {
+            &#34;architecture_bits&#34;: &#34;64bit&#34;,
+            &#34;architecture_linkage&#34;: &#34;&#34;,
+            &#34;machine&#34;: &#34;x86_64&#34;,
+            &#34;processor&#34;: &#34;x86_64&#34;,
+            &#34;node&#34;: &#34;travis-job-4768c51f-0a5e-4958-8d80-51e4b1cc88b7&#34;,
+            &#34;version&#34;: &#34;#124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017&#34;,
+            &#34;system&#34;: &#34;Linux&#34;,
+            &#34;release&#34;: &#34;4.4.0-101-generic&#34;,
+            &#34;libcver&#34;: [
+               &#34;glibc&#34;,
+               &#34;2.10&#34;
+            ],
+            &#34;num_cpus&#34;: 2,
+            &#34;boot_time&#34;: &#34;2019-02-19T13:14:56.000&#34;
+         },
+         &#34;python&#34;: {
+            &#34;version_string&#34;: &#34;3.7.2 (default, Dec 29 2018, 06:19:36) \n[GCC 7.3.0]&#34;,
+            &#34;version&#34;: [
+               &#34;3&#34;,
+               &#34;7&#34;,
+               &#34;2&#34;
+            ],
+            &#34;compiler&#34;: &#34;GCC 7.3.0&#34;,
+            &#34;implementation&#34;: &#34;CPython&#34;
+         },
+         &#34;environment&#34;: {
+            &#34;CONDA_DEFAULT_ENV&#34;: &#34;cta-dev&#34;,
+            &#34;CONDA_PREFIX&#34;: &#34;/home/travis/miniconda/envs/cta-dev&#34;,
+            &#34;CONDA_PYTHON_EXE&#34;: &#34;/home/travis/miniconda/bin/python&#34;,
+            &#34;CONDA_EXE&#34;: &#34;/home/travis/miniconda/bin/conda&#34;,
+            &#34;CONDA_PROMPT_MODIFIER&#34;: &#34;&#34;,
+            &#34;CONDA_SHLVL&#34;: &#34;1&#34;,
+            &#34;PATH&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin:/home/travis/miniconda/condabin:/home/travis/miniconda/bin:/home/travis/bin:/home/travis/.local/bin:/opt/pyenv/shims:/home/travis/.phpenv/shims:/home/travis/perl5/perlbrew/bin:/home/travis/.nvm/versions/node/v8.9.1/bin:/home/travis/.kiex/elixirs/elixir-1.4.5/bin:/home/travis/.kiex/bin:/home/travis/.rvm/gems/ruby-2.4.1/bin:/home/travis/.rvm/gems/ruby-2.4.1@global/bin:/home/travis/.rvm/rubies/ruby-2.4.1/bin:/home/travis/gopath/bin:/home/travis/.gimme/versions/go1.7.4.linux.amd64/bin:/usr/local/phantomjs/bin:/usr/local/phantomjs:/usr/local/neo4j-3.2.7/bin:/usr/local/maven-3.5.2/bin:/usr/local/cmake-3.9.2/bin:/usr/local/clang-5.0.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/travis/.rvm/bin:/home/travis/.phpenv/bin:/opt/pyenv/bin:/home/travis/.yarn/bin&#34;,
+            &#34;LD_LIBRARY_PATH&#34;: null,
+            &#34;DYLD_LIBRARY_PATH&#34;: null,
+            &#34;USER&#34;: &#34;travis&#34;,
+            &#34;HOME&#34;: &#34;/home/travis&#34;,
+            &#34;SHELL&#34;: &#34;/bin/bash&#34;
+         },
+         &#34;arguments&#34;: [
+            &#34;/home/travis/miniconda/envs/cta-dev/lib/python3.7/site-packages/ipykernel_launcher.py&#34;,
+            &#34;-f&#34;,
+            &#34;/tmp/tmpitlta6w3.json&#34;
+         ],
+         &#34;start_time_utc&#34;: &#34;2019-02-19T13:23:41.221&#34;
+      },
+      &#34;input&#34;: [],
+      &#34;output&#34;: [],
+      &#34;config&#34;: {
+         &#34;MyTool&#34;: {
+            &#34;log_level&#34;: &#34;DEBUG&#34;,
+            &#34;iterations&#34;: 3
+         },
+         &#34;AdvancedComponent&#34;: {
+            &#34;infile&#34;: &#34;bork.txt&#34;
+         }
+      },
+      &#34;status&#34;: &#34;completed&#34;,
+      &#34;duration_min&#34;: 0.0057500000001375895
+   },
+   {
+      &#34;activity_name&#34;: &#34;mytool&#34;,
+      &#34;activity_uuid&#34;: &#34;687bd7d8-19d4-4c3a-ac18-ece85605d64a&#34;,
+      &#34;start&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:41.561&#34;
+      },
+      &#34;stop&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:41.697&#34;
+      },
+      &#34;system&#34;: {
+         &#34;ctapipe_version&#34;: &#34;0.6.2.post4+gitc3efe61&#34;,
+         &#34;ctapipe_resources_version&#34;: &#34;0.2.16&#34;,
+         &#34;ctapipe_svc_path&#34;: null,
+         &#34;executable&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin/python&#34;,
+         &#34;platform&#34;: {
+            &#34;architecture_bits&#34;: &#34;64bit&#34;,
+            &#34;architecture_linkage&#34;: &#34;&#34;,
+            &#34;machine&#34;: &#34;x86_64&#34;,
+            &#34;processor&#34;: &#34;x86_64&#34;,
+            &#34;node&#34;: &#34;travis-job-4768c51f-0a5e-4958-8d80-51e4b1cc88b7&#34;,
+            &#34;version&#34;: &#34;#124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017&#34;,
+            &#34;system&#34;: &#34;Linux&#34;,
+            &#34;release&#34;: &#34;4.4.0-101-generic&#34;,
+            &#34;libcver&#34;: [
+               &#34;glibc&#34;,
+               &#34;2.10&#34;
+            ],
+            &#34;num_cpus&#34;: 2,
+            &#34;boot_time&#34;: &#34;2019-02-19T13:14:56.000&#34;
+         },
+         &#34;python&#34;: {
+            &#34;version_string&#34;: &#34;3.7.2 (default, Dec 29 2018, 06:19:36) \n[GCC 7.3.0]&#34;,
+            &#34;version&#34;: [
+               &#34;3&#34;,
+               &#34;7&#34;,
+               &#34;2&#34;
+            ],
+            &#34;compiler&#34;: &#34;GCC 7.3.0&#34;,
+            &#34;implementation&#34;: &#34;CPython&#34;
+         },
+         &#34;environment&#34;: {
+            &#34;CONDA_DEFAULT_ENV&#34;: &#34;cta-dev&#34;,
+            &#34;CONDA_PREFIX&#34;: &#34;/home/travis/miniconda/envs/cta-dev&#34;,
+            &#34;CONDA_PYTHON_EXE&#34;: &#34;/home/travis/miniconda/bin/python&#34;,
+            &#34;CONDA_EXE&#34;: &#34;/home/travis/miniconda/bin/conda&#34;,
+            &#34;CONDA_PROMPT_MODIFIER&#34;: &#34;&#34;,
+            &#34;CONDA_SHLVL&#34;: &#34;1&#34;,
+            &#34;PATH&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin:/home/travis/miniconda/condabin:/home/travis/miniconda/bin:/home/travis/bin:/home/travis/.local/bin:/opt/pyenv/shims:/home/travis/.phpenv/shims:/home/travis/perl5/perlbrew/bin:/home/travis/.nvm/versions/node/v8.9.1/bin:/home/travis/.kiex/elixirs/elixir-1.4.5/bin:/home/travis/.kiex/bin:/home/travis/.rvm/gems/ruby-2.4.1/bin:/home/travis/.rvm/gems/ruby-2.4.1@global/bin:/home/travis/.rvm/rubies/ruby-2.4.1/bin:/home/travis/gopath/bin:/home/travis/.gimme/versions/go1.7.4.linux.amd64/bin:/usr/local/phantomjs/bin:/usr/local/phantomjs:/usr/local/neo4j-3.2.7/bin:/usr/local/maven-3.5.2/bin:/usr/local/cmake-3.9.2/bin:/usr/local/clang-5.0.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/travis/.rvm/bin:/home/travis/.phpenv/bin:/opt/pyenv/bin:/home/travis/.yarn/bin&#34;,
+            &#34;LD_LIBRARY_PATH&#34;: null,
+            &#34;DYLD_LIBRARY_PATH&#34;: null,
+            &#34;USER&#34;: &#34;travis&#34;,
+            &#34;HOME&#34;: &#34;/home/travis&#34;,
+            &#34;SHELL&#34;: &#34;/bin/bash&#34;
+         },
+         &#34;arguments&#34;: [
+            &#34;/home/travis/miniconda/envs/cta-dev/lib/python3.7/site-packages/ipykernel_launcher.py&#34;,
+            &#34;-f&#34;,
+            &#34;/tmp/tmpitlta6w3.json&#34;
+         ],
+         &#34;start_time_utc&#34;: &#34;2019-02-19T13:23:41.594&#34;
+      },
+      &#34;input&#34;: [],
+      &#34;output&#34;: [],
+      &#34;config&#34;: {
+         &#34;MyTool&#34;: {
+            &#34;log_level&#34;: &#34;DEBUG&#34;,
+            &#34;iterations&#34;: 3
+         },
+         &#34;AdvancedComponent&#34;: {
+            &#34;infile&#34;: &#34;bork.txt&#34;
+         }
+      },
+      &#34;status&#34;: &#34;completed&#34;,
+      &#34;duration_min&#34;: 0.002266666666681516
+   },
+   {
+      &#34;activity_name&#34;: &#34;mytool&#34;,
+      &#34;activity_uuid&#34;: &#34;86846491-a063-48f5-997e-9dc01e0aeffb&#34;,
+      &#34;start&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:41.866&#34;
+      },
+      &#34;stop&#34;: {
+         &#34;time_utc&#34;: &#34;2019-02-19T13:23:42.417&#34;
+      },
+      &#34;system&#34;: {
+         &#34;ctapipe_version&#34;: &#34;0.6.2.post4+gitc3efe61&#34;,
+         &#34;ctapipe_resources_version&#34;: &#34;0.2.16&#34;,
+         &#34;ctapipe_svc_path&#34;: null,
+         &#34;executable&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin/python&#34;,
+         &#34;platform&#34;: {
+            &#34;architecture_bits&#34;: &#34;64bit&#34;,
+            &#34;architecture_linkage&#34;: &#34;&#34;,
+            &#34;machine&#34;: &#34;x86_64&#34;,
+            &#34;processor&#34;: &#34;x86_64&#34;,
+            &#34;node&#34;: &#34;travis-job-4768c51f-0a5e-4958-8d80-51e4b1cc88b7&#34;,
+            &#34;version&#34;: &#34;#124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017&#34;,
+            &#34;system&#34;: &#34;Linux&#34;,
+            &#34;release&#34;: &#34;4.4.0-101-generic&#34;,
+            &#34;libcver&#34;: [
+               &#34;glibc&#34;,
+               &#34;2.10&#34;
+            ],
+            &#34;num_cpus&#34;: 2,
+            &#34;boot_time&#34;: &#34;2019-02-19T13:14:56.000&#34;
+         },
+         &#34;python&#34;: {
+            &#34;version_string&#34;: &#34;3.7.2 (default, Dec 29 2018, 06:19:36) \n[GCC 7.3.0]&#34;,
+            &#34;version&#34;: [
+               &#34;3&#34;,
+               &#34;7&#34;,
+               &#34;2&#34;
+            ],
+            &#34;compiler&#34;: &#34;GCC 7.3.0&#34;,
+            &#34;implementation&#34;: &#34;CPython&#34;
+         },
+         &#34;environment&#34;: {
+            &#34;CONDA_DEFAULT_ENV&#34;: &#34;cta-dev&#34;,
+            &#34;CONDA_PREFIX&#34;: &#34;/home/travis/miniconda/envs/cta-dev&#34;,
+            &#34;CONDA_PYTHON_EXE&#34;: &#34;/home/travis/miniconda/bin/python&#34;,
+            &#34;CONDA_EXE&#34;: &#34;/home/travis/miniconda/bin/conda&#34;,
+            &#34;CONDA_PROMPT_MODIFIER&#34;: &#34;&#34;,
+            &#34;CONDA_SHLVL&#34;: &#34;1&#34;,
+            &#34;PATH&#34;: &#34;/home/travis/miniconda/envs/cta-dev/bin:/home/travis/miniconda/condabin:/home/travis/miniconda/bin:/home/travis/bin:/home/travis/.local/bin:/opt/pyenv/shims:/home/travis/.phpenv/shims:/home/travis/perl5/perlbrew/bin:/home/travis/.nvm/versions/node/v8.9.1/bin:/home/travis/.kiex/elixirs/elixir-1.4.5/bin:/home/travis/.kiex/bin:/home/travis/.rvm/gems/ruby-2.4.1/bin:/home/travis/.rvm/gems/ruby-2.4.1@global/bin:/home/travis/.rvm/rubies/ruby-2.4.1/bin:/home/travis/gopath/bin:/home/travis/.gimme/versions/go1.7.4.linux.amd64/bin:/usr/local/phantomjs/bin:/usr/local/phantomjs:/usr/local/neo4j-3.2.7/bin:/usr/local/maven-3.5.2/bin:/usr/local/cmake-3.9.2/bin:/usr/local/clang-5.0.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/travis/.rvm/bin:/home/travis/.phpenv/bin:/opt/pyenv/bin:/home/travis/.yarn/bin&#34;,
+            &#34;LD_LIBRARY_PATH&#34;: null,
+            &#34;DYLD_LIBRARY_PATH&#34;: null,
+            &#34;USER&#34;: &#34;travis&#34;,
+            &#34;HOME&#34;: &#34;/home/travis&#34;,
+            &#34;SHELL&#34;: &#34;/bin/bash&#34;
+         },
+         &#34;arguments&#34;: [
+            &#34;/home/travis/miniconda/envs/cta-dev/lib/python3.7/site-packages/ipykernel_launcher.py&#34;,
+            &#34;-f&#34;,
+            &#34;/tmp/tmpitlta6w3.json&#34;
+         ],
+         &#34;start_time_utc&#34;: &#34;2019-02-19T13:23:41.898&#34;
+      },
+      &#34;input&#34;: [],
+      &#34;output&#34;: [],
+      &#34;config&#34;: {
+         &#34;MyTool&#34;: {
+            &#34;config_file&#34;: &#34;Tools.json&#34;,
+            &#34;log_level&#34;: &#34;DEBUG&#34;
+         },
+         &#34;AdvancedComponent&#34;: {
+            &#34;infile&#34;: &#34;something.txt&#34;
+         }
+      },
+      &#34;status&#34;: &#34;completed&#34;,
+      &#34;duration_min&#34;: 0.009183333333293575
+   }
+]&#39;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">tool2</span><span class="o">.</span><span class="n">advanced</span><span class="o">.</span><span class="n">infile</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+something.txt
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">tool2</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;MyTool&#39;: {&#39;config_file&#39;: &#39;Tools.json&#39;, &#39;log_level&#39;: &#39;DEBUG&#39;}, &#39;AdvancedComponent&#39;: {&#39;infile&#39;: &#39;something.txt&#39;}}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool2</span><span class="o">.</span><span class="n">is_setup</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>True
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool3</span> <span class="o">=</span> <span class="n">MyTool</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool3</span><span class="o">.</span><span class="n">is_setup</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>False
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool3</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-intense-fg ansi-bold">INFO</span> [MyTool] (tool/initialize): ctapipe version 0.6.2.post4+gitc3efe61
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tool3</span><span class="o">.</span><span class="n">is_setup</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>False
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="provenance.html" class="btn btn-neutral float-right" title="Using the ctapipe Provenance service" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="containers.html" class="btn btn-neutral" title="Using Container classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

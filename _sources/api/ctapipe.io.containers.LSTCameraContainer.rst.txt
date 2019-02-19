@@ -1,0 +1,23 @@
+LSTCameraContainer
+==================
+
+.. currentmodule:: ctapipe.io.containers
+
+.. autoclass:: LSTCameraContainer
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~LSTCameraContainer.evt
+      ~LSTCameraContainer.meta
+      ~LSTCameraContainer.prefix
+      ~LSTCameraContainer.svc
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: evt
+   .. autoattribute:: meta
+   .. autoattribute:: prefix
+   .. autoattribute:: svc

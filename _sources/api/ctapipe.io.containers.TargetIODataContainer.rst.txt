@@ -1,0 +1,21 @@
+TargetIODataContainer
+=====================
+
+.. currentmodule:: ctapipe.io.containers
+
+.. autoclass:: TargetIODataContainer
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~TargetIODataContainer.meta
+      ~TargetIODataContainer.prefix
+      ~TargetIODataContainer.targetio
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: meta
+   .. autoattribute:: prefix
+   .. autoattribute:: targetio

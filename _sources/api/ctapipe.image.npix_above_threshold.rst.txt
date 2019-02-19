@@ -1,0 +1,6 @@
+npix_above_threshold
+====================
+
+.. currentmodule:: ctapipe.image
+
+.. autofunction:: npix_above_threshold

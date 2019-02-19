@@ -1,0 +1,439 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ctapipe.calib.camera.dl1 &mdash; ctapipe v0.6.2.post4+gitc3efe61</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> ctapipe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6.2.post4+gitc3efe61
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/index.html">Getting Started For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development/index.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../FAQ.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ctapipe_api/index.html">API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bibliography.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Change Log</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ctapipe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>ctapipe.calib.camera.dl1</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ctapipe.calib.camera.dl1</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calibrator for the DL0 -&gt; DL1 data level transition.</span>
+
+<span class="sd">This module handles the calibration from the DL0 data level to DL1. This</span>
+<span class="sd">transition involves the waveform cleaning (such as filtering, smoothing,</span>
+<span class="sd">or basline subtraction) performed by a cleaner from</span>
+<span class="sd">`ctapipe.image.waveform_cleaning`, and the charge extraction technique</span>
+<span class="sd">from `ctapipe.image.charge_extractors`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">...core</span> <span class="k">import</span> <span class="n">Component</span>
+<span class="kn">from</span> <span class="nn">...core.traits</span> <span class="k">import</span> <span class="n">Float</span>
+<span class="kn">from</span> <span class="nn">...image</span> <span class="k">import</span> <span class="n">NeighbourPeakIntegrator</span><span class="p">,</span> <span class="n">NullWaveformCleaner</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CameraDL1Calibrator&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">integration_correction</span><span class="p">(</span><span class="n">n_chan</span><span class="p">,</span> <span class="n">pulse_shape</span><span class="p">,</span> <span class="n">refstep</span><span class="p">,</span> <span class="n">time_slice</span><span class="p">,</span>
+                           <span class="n">window_width</span><span class="p">,</span> <span class="n">window_shift</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtain the integration correction for the window specified.</span>
+
+<span class="sd">    This correction accounts for the cherenkov signal that may be missed due</span>
+<span class="sd">    to a smaller integration window by looking at the reference pulse shape.</span>
+
+<span class="sd">    Provides the same result as set_integration_correction from readhess.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n_chan : int</span>
+<span class="sd">        Number of gain channels for the telescope</span>
+<span class="sd">    pulse_shape : ndarray</span>
+<span class="sd">        Numpy array containing the pulse shape for each channel.</span>
+<span class="sd">    refstep : int</span>
+<span class="sd">        The step in time for each sample of the reference pulse shape</span>
+<span class="sd">    time_slice : int</span>
+<span class="sd">        The step in time for each sample of the waveforms</span>
+<span class="sd">    window_width : int</span>
+<span class="sd">        Width of the integration window.</span>
+<span class="sd">    window_shift : int</span>
+<span class="sd">        Shift to before the peak for the start of the integration window.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    correction : list[2]</span>
+<span class="sd">        Value of the integration correction for this telescope for each</span>
+<span class="sd">        channel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">correction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_chan</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_chan</span><span class="p">):</span>
+        <span class="n">pshape</span> <span class="o">=</span> <span class="n">pulse_shape</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">pshape</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="n">time_slice</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">refstep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">ref_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pshape</span><span class="o">.</span><span class="n">size</span> <span class="o">*</span> <span class="n">refstep</span><span class="p">,</span> <span class="n">refstep</span><span class="p">)</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pshape</span><span class="o">.</span><span class="n">size</span> <span class="o">*</span> <span class="n">refstep</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">time_slice</span><span class="p">)</span>
+
+        <span class="n">sampled</span><span class="p">,</span> <span class="n">se</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">ref_x</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">pshape</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="n">sampled</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">sampled</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span> <span class="o">-</span> <span class="n">window_shift</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">window_width</span>
+
+        <span class="k">if</span> <span class="n">window_width</span> <span class="o">&gt;</span> <span class="n">n_samples</span><span class="p">:</span>
+            <span class="n">window_width</span> <span class="o">=</span> <span class="n">n_samples</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="o">+</span> <span class="n">window_width</span> <span class="o">&gt;</span> <span class="n">n_samples</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">-</span> <span class="n">window_width</span>
+
+        <span class="n">integration</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">se</span><span class="p">)[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">*</span> <span class="n">sampled</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+        <span class="n">correction</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">integration</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">correction</span>
+
+
+<div class="viewcode-block" id="CameraDL1Calibrator"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.dl1.CameraDL1Calibrator.html#ctapipe.calib.CameraDL1Calibrator">[docs]</a><span class="k">class</span> <span class="nc">CameraDL1Calibrator</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The calibrator for DL1 charge extraction. Fills the dl1 container.</span>
+
+<span class="sd">    It handles the integration correction and, if required, the list of</span>
+<span class="sd">    neighbours.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : traitlets.loader.Config</span>
+<span class="sd">        Configuration specified by config file or cmdline arguments.</span>
+<span class="sd">        Used to set traitlet values.</span>
+<span class="sd">        Set to None if no configuration to pass.</span>
+<span class="sd">    tool : ctapipe.core.Tool or None</span>
+<span class="sd">        Tool executable that is calling this component.</span>
+<span class="sd">        Passes the correct logger to the component.</span>
+<span class="sd">        Set to None if no Tool to pass.</span>
+<span class="sd">    extractor : ctapipe.calib.camera.charge_extractors.ChargeExtractor</span>
+<span class="sd">        The extractor to use to extract the charge from the waveforms.</span>
+<span class="sd">        By default the NeighbourPeakIntegrator with default configuration</span>
+<span class="sd">        is used.</span>
+<span class="sd">    cleaner : ctapipe.calib.camera.waveform_cleaners.Cleaner</span>
+<span class="sd">        The waveform cleaner to use. By default no cleaning is</span>
+<span class="sd">        applied to the waveforms.</span>
+<span class="sd">    kwargs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                   <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Pixels within radius from a pixel are considered &#39;</span>
+                        <span class="s1">&#39;neighbours to the pixel. Set to None for the default &#39;</span>
+                        <span class="s1">&#39;(1.4 * min_pixel_seperation).&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">clip_amplitude</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Amplitude in p.e. above which the signal is &#39;</span>
+                                <span class="s1">&#39;clipped. Set to None for no &#39;</span>
+                                <span class="s1">&#39;clipping.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extractor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cleaner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extractor</span> <span class="o">=</span> <span class="n">extractor</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extractor</span> <span class="o">=</span> <span class="n">NeighbourPeakIntegrator</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleaner</span> <span class="o">=</span> <span class="n">cleaner</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cleaner</span> <span class="o">=</span> <span class="n">NullWaveformCleaner</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">tool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dl0_empty_warn</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="CameraDL1Calibrator.check_dl0_exists"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.dl1.CameraDL1Calibrator.html#ctapipe.calib.CameraDL1Calibrator.check_dl0_exists">[docs]</a>    <span class="k">def</span> <span class="nf">check_dl0_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">telid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check that dl0 data exists. If it does not, then do not change dl1.</span>
+
+<span class="sd">        This ensures that if the containers were filled from a file containing</span>
+<span class="sd">        dl1 data, it is not overwritten by non-existant data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : container</span>
+<span class="sd">            A `ctapipe` event container</span>
+<span class="sd">        telid : int</span>
+<span class="sd">            The telescope id.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if dl0.tel[telid].waveform is not None, else false.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dl0</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dl0</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span>
+        <span class="k">if</span> <span class="n">dl0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dl0_empty_warn</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Encountered an event with no DL0 data. &quot;</span>
+                                 <span class="s2">&quot;DL1 is unchanged in this circumstance.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dl0_empty_warn</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="CameraDL1Calibrator.get_correction"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.dl1.CameraDL1Calibrator.html#ctapipe.calib.CameraDL1Calibrator.get_correction">[docs]</a>    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">telid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain the integration correction for this telescope.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : container</span>
+<span class="sd">            A `ctapipe` event container</span>
+<span class="sd">        telid : int</span>
+<span class="sd">            The telescope id.</span>
+<span class="sd">            The integration correction is calculated once per telescope.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractor</span><span class="o">.</span><span class="n">window_shift</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractor</span><span class="o">.</span><span class="n">window_width</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">reference_pulse_shape</span>
+            <span class="n">n_chan</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;refstep&#39;</span><span class="p">]</span>
+            <span class="n">time_slice</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">time_slice</span>
+            <span class="n">correction</span> <span class="o">=</span> <span class="n">integration_correction</span><span class="p">(</span><span class="n">n_chan</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span>
+                                                <span class="n">time_slice</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">shift</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">correction</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
+            <span class="c1"># Don&#39;t apply correction when window_shift or window_width</span>
+            <span class="c1"># does not exist in extractor, or when container does not have</span>
+            <span class="c1"># a reference pulse shape</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">dl0</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="CameraDL1Calibrator.calibrate"><a class="viewcode-back" href="../../../../api/ctapipe.calib.camera.dl1.CameraDL1Calibrator.html#ctapipe.calib.CameraDL1Calibrator.calibrate">[docs]</a>    <span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fill the dl1 container with the calibration data that results from the</span>
+<span class="sd">        configuration of this calibrator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : container</span>
+<span class="sd">            A `ctapipe` event container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">telid</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">dl0</span><span class="o">.</span><span class="n">tels_with_data</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_dl0_exists</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">telid</span><span class="p">):</span>
+                <span class="n">waveforms</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dl0</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">waveform</span>
+                <span class="n">n_samples</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">n_samples</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># To handle ASTRI and dst</span>
+                    <span class="n">corrected</span> <span class="o">=</span> <span class="n">waveforms</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                    <span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                    <span class="n">peakpos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">waveforms</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">cleaned</span> <span class="o">=</span> <span class="n">waveforms</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Clean waveforms</span>
+                    <span class="n">cleaned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaner</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">waveforms</span><span class="p">)</span>
+
+                    <span class="c1"># Extract charge</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractor</span><span class="o">.</span><span class="n">requires_neighbours</span><span class="p">():</span>
+                        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractor</span>
+                        <span class="n">g</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">inst</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">camera</span>
+                        <span class="n">e</span><span class="o">.</span><span class="n">neighbours</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">neighbor_matrix_where</span>
+                    <span class="n">extract</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractor</span><span class="o">.</span><span class="n">extract_charge</span>
+                    <span class="n">charge</span><span class="p">,</span> <span class="n">peakpos</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="n">extract</span><span class="p">(</span><span class="n">cleaned</span><span class="p">)</span>
+
+                    <span class="c1"># Apply integration correction</span>
+                    <span class="n">correction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_correction</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">telid</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+                    <span class="n">corrected</span> <span class="o">=</span> <span class="n">charge</span> <span class="o">*</span> <span class="n">correction</span>
+
+                <span class="c1"># Clip amplitude</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip_amplitude</span><span class="p">:</span>
+                    <span class="n">corrected</span><span class="p">[</span><span class="n">corrected</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip_amplitude</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">clip_amplitude</span>
+
+                <span class="c1"># Store into event container</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">dl1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">corrected</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">dl1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">extracted_samples</span> <span class="o">=</span> <span class="n">window</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">dl1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">peakpos</span> <span class="o">=</span> <span class="n">peakpos</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">dl1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">telid</span><span class="p">]</span><span class="o">.</span><span class="n">cleaned</span> <span class="o">=</span> <span class="n">cleaned</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright ctapipe developers.  Last updated 19 Feb 2019 13:23
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
